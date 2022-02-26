@@ -1,0 +1,1885 @@
+\documentclass[twoside, 12pt,notitlepage]{report}
+\usepackage[utf8]{inputenc}
+\usepackage[greek,english]{babel}
+\usepackage{alphabeta}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{bm}
+\usepackage[nottoc]{tocbibind}
+\usepackage{graphicx}
+\usepackage[capbesideposition=right]{floatrow}
+\usepackage{wrapfig}
+\usepackage{epstopdf}
+\usepackage[font={it}]{caption}
+\usepackage{subcaption}
+\usepackage{float}
+\graphicspath{ {./Figures/} }
+\usepackage[table]{xcolor}
+\usepackage{multicol}
+\usepackage{booktabs}
+\usepackage{titling}
+\usepackage{lipsum}
+
+%------Change format of code 
+\usepackage{listings}
+
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},   
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{blue},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codegreen},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,         
+    breaklines=true,
+    columns=flexible,                 
+    captionpos=b,                    
+    keepspaces=true,                 
+    numbers=left,                    
+    numbersep=4pt,                  
+    showspaces=false,                
+    showstringspaces=false,
+    showtabs=false,                  
+    tabsize=2
+}
+
+\lstset{mathescape, style=mystyle}
+
+%--Define norm
+%newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+
+%Define widehat format
+\usepackage{yhmath, accents}
+\newcommand{\newhat}[1]{\mkern5mu\widehat{\mkern-5mu 
+\rule{0pt}{2.1ex}\smash{\vec{#1}}}}
+
+%-----------------------------------------
+%--headers,footers--
+\usepackage{fancyhdr}
+\usepackage[a4paper,width=150mm,top=25mm,bottom=25mm, 
+bindingoffset=10mm]{geometry}
+\usepackage[hidelinks]{hyperref}
+\hypersetup{
+    colorlinks=true,
+    citecolor=blue,
+    filecolor=black,
+    linkcolor=blue,
+    urlcolor=blue
+}
+
+\pagestyle{fancy}
+\fancyhead{}
+\fancyhead[RO,RE]{\rightmark}
+\renewcommand{\headrulewidth}{0.1pt}
+\renewcommand{\footrulewidth}{0 pt}
+
+%--tikz flowcharts,pictures--
+\usepackage{tikz}
+\usepackage{adjustbox}
+\usetikzlibrary{shapes.geometric, arrows}
+\usetikzlibrary{positioning, matrix, arrows.meta, 
+backgrounds}
+
+\usetikzlibrary{decorations.pathreplacing,shapes}
+
+\tikzstyle{startstop} = [rectangle, rounded corners, 
+minimum width=1cm, minimum height=1cm,text centered, 
+draw=black, fill=gray!40]
+
+\tikzstyle{io} = [trapezium, trapezium left angle=70, 
+trapezium right angle=110, minimum width=1cm, minimum 
+height=1cm, text centered, draw=black, fill=gray!10]
+
+\tikzstyle{process} = [rectangle, minimum width=1cm, 
+minimum height=1cm, text centered, draw=black, 
+fill=gray!10]
+
+\tikzstyle{decision} = [diamond, minimum width=0.5cm, 
+minimum height=0.5cm, text centered, draw=black, 
+fill=gray!10]
+
+\tikzstyle{arrow} = [thick,->,>=stealth]
+
+%--list custom environment--
+\usepackage{enumitem}
+\newlist{EA}{enumerate}{1}
+\setlist[EA]{label=EAs-\arabic*.}
+
+\newlist{OFFL}{enumerate}{1}
+\setlist[OFFL]{label=OFFL-\arabic*.}
+
+\newlist{ONL}{enumerate}{1}
+\setlist[ONL]{label=ONL-\arabic*.}
+
+%---------------------------------------------------------
+%----------------Title----------------------------
+
+\begin{document}
+\begin{titlepage}
+\pagenumbering{roman}
+\begin{wrapfigure}{l}{0.25\textwidth}
+\includegraphics[width=0.6\textwidth]{NTUA}
+\end{wrapfigure}
+
+\hspace{-8mm}
+\textbf{National Technical University of Athens} \\
+\textbf{School of Mechanical Engineering} \\
+\textbf{Fluids Section} \\
+\textbf{Parallel CFD \& Optimization Unit} \\
+
+\vspace{3mm}
+\hspace{-3mm}
+\begin{center}
+    \vspace*{3cm}
+       \textbf{On the Optimal Use of Metamodel-Assisted 
+Evolutionary Algorithms in Aerodynamic Applications}
+
+       \vspace{2cm}
+        Diploma Thesis
+            
+       \vspace{1cm}
+
+       \textbf{Michalis Dimitrios}
+
+       \vspace{5cm}
+            
+       Advisor: Kyriakos C. Giannakoglou, Professor NTUA
+            
+       \vspace{0.8cm}
+            
+		Athens, 2022      
+            
+\end{center}
+
+\end{titlepage}
+
+\newpage
+%----------------------------------------------------
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\newpage
+
+%---------------Acknowledgements------------------------
+\chapter*{Acknowledgements}
+
+First and foremost, I would like to express my deepest gratitude to 
+my professor, K. Giannakoglou for guiding me during the process of 
+completing this diploma thesis and for trusting me with this 
+particular subject. I would further like to thank him for his 
+undying trust in me throughout this strenuous process. I would also 
+like to thank Dr. Varvara Asouti who provided me with her valuable 
+help and constant support, despite her busy schedule. 
+
+Finally, I thank all my friends for being there for me throughout 
+my studies and my family for supporting me for all those years.
+
+\newpage
+%------------------------------------------------------
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\newpage
+
+%--------------------Abstract--------------------------
+\begin{wrapfigure}{l}{0.25\textwidth}
+\includegraphics[width=0.6\textwidth]{NTUA}
+\end{wrapfigure}
+
+\hspace{-8mm}
+\textbf{National Technical University of Athens} \\
+\textbf{School of Mechanical Engineering} \\
+\textbf{Fluids Section} \\
+\textbf{Parallel CFD \& Optimization Unit} \\
+
+\hspace{-2mm}
+\begin{center}
+\textbf{On the Optimal Use of Metamodel-Assisted 
+Evolutionary Algorithms in Aerodynamic Applications} \\[2mm]
+Diploma Thesis \\[1mm]
+\textbf{Michalis Dimitrios} \\[3mm]
+Advisor: Kyriakos C. Giannakoglou, Professor NTUA \\[1mm]
+Athens, 2022 \\[6mm]
+\large \textbf{Abstract} \\
+\end{center}
+
+\vspace{2mm}
+
+In this diploma thesis, the implementation of Metamodel-Assisted 
+Evolutionary Algorithms (MAEAs) in the optimization process of 
+various common engineering cases is tested. Two main MAEA-based 
+optimization methods are utilized and are affiliated with the 
+approach followed in the training of the metamodels, i.e. on-line 
+and off-line training. Both these methods are implemented using an 
+external, Python-based software, called Surrogate Model Toolbox 
+(SMT), and are compared to plain EAs in terms of efficiency and 
+computational cost. The optimization is carried out using EASY 
+(Evolutionary Algorithm SYstem) in-house software that is developed 
+by the Parallel CFD \& Optimization (PCOpt) Unit of NTUA. From the 
+various built-in surrogate models found in EASY, Radial Basis 
+Functions (RBFs) are utilized in this thesis. However, the 
+optimization via the use of EASY can be additionally assisted by 
+external metamodels, which are found in SMT software. 
+From those external surrogate models, namely Kriging, its 
+applications in reduced design space using Partial Least Squares, 
+i.e. KPLS and KPLSK, and RBFs are utilized in this thesis. Each 
+optimization method is initially implemented in two simple 
+pseudo-engineering optimizattion problems, i.e. welded beam and 
+speed reducer case, and subsequently in the shape optimization of 
+a 2D isolated airfoil. The Reynolds Averaged Navier-Stokes 
+equations of compressible flows are solved using PUMA (Parallel 
+solver, for Unstructured grids, for Multi-blade row computations, 
+including Adjoint) CFD solver that is developed by PCOpt/NTUA. 
+
+\newpage
+%------------------------
+
+
+\begin{wrapfigure}{l}{0.25\textwidth}
+\includegraphics[width=0.6\textwidth]{NTUA}
+\end{wrapfigure}
+
+\hspace{-8mm}
+\textbf{Eθνικό Μετσόβιο Πολυτεχνείο} \\
+\textbf{Σχολή Μηχανολόγων Μηχανικών} \\
+\textbf{Τομέας Ρευστών} \\
+\textbf{Μονάδα Παράλληλης Υπολογιστικής Ρευστοδυναμικής \& 
+Βελτιστοποίησης} \\
+
+\hspace{-2mm}
+\begin{center}
+\textbf{Περί Βέλτιστης Χρήσης Μεταπροτύπων στους Εξελικτικούς 
+Αλγορίθμους με Εφαρμογές στην Αεροδυναμική} \\[3mm]
+Διπλωματική Εργασία \\[1mm]
+\textbf{Μιχάλης Δημήτριος} \\[3mm]
+Επιβλέπων: Kυριάκος Χ. Γιαννάκογλου, Καθηγητής ΕΜΠ \\[1mm]
+Αθήνα, 2022 \\[6mm]
+\large \textbf{Περίληψη} \\
+\end{center}
+
+Στο πλαίσιο αυτής της διπλωματικής εργασίας μελετάται η 
+εφαρμογή εξελικτικών αλγορίθμων (EAs) υποβοηθούμενων απο 
+μεταμοντέλα (Metamodel-Assisted Evolutionary Algorithms MAEAs) σε 
+διάφορες εφαρμογές μηχανολογικού ενδιαφέροντος. Δύο είναι οι κύριες 
+μέθοδοι βελτιστοποίησης με εφαρμογή των MAEAs και σχετίζονται με 
+τον τρόπο εκπαίδευσης των μεταμοντέλων, δηλαδή επιγραμμικά 
+(on-line) και απογραμμικά (off-line). Και οι δύο αυτοί μέθοδοι 
+εφαρμόζονται με τη βοήθεια ενός εξωτερικού λογισμικού με βάση την 
+Python, που ονομάζεται Surrogate Model Toolbox (SMT), και 
+συγκρίνονται με τους κοινούς ΕΑs με βάση την αποτελεσματικότητα και 
+το υπολογιστικό κόστος που προκύπτει από τη χρήση τους. Η 
+βελτιστοποίηση σε κάθε περίπτωση πραγματοποιείται με τη χρήση του 
+EASY (Evolutionary Algorithm SYstem), ενός λογισμικού που 
+αναπτύχθηκε από τη Μονάδα Παράλληλης Υπολογιστικής Ρευστοδυναμικής 
+\& Βελτιστοποίησης (ΜΠΥΡΒ) του ΕΜΠ. Από τα διάφορα ενσωματωμένα 
+μεταμοντέλα που υπάρχουν στον EASY, οι συναρτήσεις ακτινικής 
+βάσης (Radial Basis Functions (RBFs) χρησιμοποιούνται στην παρούσα 
+διπλωματική εργασία. Ωστόσο, η βελτιστοποίηση μέσω του EASY 
+μπορεί να υποβοηθηθεί από εξωτερικά μεταπρότυπα, τα οποία είναι 
+διαθέσιμα στο SMT. Από αυτά τα εξωτερικά μεταμοντέλα, σε αυτή τη 
+διπλωματική εργασία γίνεται χρήση κυρίως του Kriging, των 
+παραλλαγών του για χώρο σχεδιασμού μειωμένων διαστάσεων χάρη στην 
+εφαρμογή της μεθόδου μερικών ελαχίστων τετραγώνων (Partial Least 
+Squares), κυρίως του KPLS και του KPLSK, καθώς και των RBFs. Κάθε 
+μια απο τις μεθόδους βελτιστοποίησης εφαρμόζεται σε πρώτο στάδιο σε 
+απλά προβλήματα ψευδο-μηχανικής, κυρίως στην περίπτωση της 
+συγκολλητής δοκού και του μειωτήρα ταχύτητας, ενώ στη 
+συνέχεια στη βελτιστοποίηση μορφής μιας διδιάστατης αεροτομής. Η 
+επίλυση των εξισώσεων Reynolds-Averaged Navier-Stokes συμπιεστού 
+ρευστού γύρω από την αεροτομή γίνεται με τη χρήση ενός CFD επιλύτη, 
+που ονομάζεται PUMA και αναπτύχθηκε από τη ΜΠΥΡΒ/ΕΜΠ.
+
+\newpage
+%------------------------------------------------------
+
+%------------------Acronyms---------------------------
+\chapter*{Acronyms}
+
+EA \hfill Evolutionary Algorithm \\
+\\
+SOO \hfill Single Objective Optimization \\
+\\
+MOO \hfill Multi Objective Optimization \\
+\\
+CFD \hfill Computational Fluid Dynamics \\
+\\
+MAEA \hfill Metamodel Assisted Evolutionary Algorithm \\
+\\
+PSM \hfill Problem-Specific Model \\
+\\
+DoE \hfill Desing of Experiments \\
+\\
+LCPE \hfill Low-Cost Pre-Evaluation \\
+\\
+EASY \hfill Evolutionary Algorithm SYstem \\
+\\
+PCOpt \hfill Parallel CFD \& Optimization unit \\
+\\
+NTUA \hfill National Technical University of Athens \\
+\\
+PUMA \hfill Parallel solver, for Unstructured grids, \\
+\textcolor{white}{a} \hfill for Multi-blade row computations,
+including Adjoint \\
+\\
+RBF \hfill Radial Basis Function \\
+\\
+PLS \hfill Partial Least Squares \\
+\\
+SMT \hfill Surrogate Model Toolbox \\
+\\
+DB \hfill Database \\
+\\
+MDB \hfill Metamodel Database \\
+\\
+LH \hfill Latin Hypercube \\
+\\
+LHD \hfill Latin Hypercube Design \\
+\\
+LHS \hfill Latin Hypercube Sampling \\
+\\
+ESE \hfill Enhanced Stochastic Evolutionary \\
+\\
+FFD \hfill Full Factorial Design \\
+\\
+RMSE \hfill Root Mean Squared Error \\
+\\
+NRMSE \hfill Normalised Root Mean Squared Error \\
+\\
+BLUP \hfill Best Linear Unbiased Predictor \\
+\\
+MSE \hfill Mean Squared Error \\
+\\
+COBYLA \hfill Constrained Optimization BY Linear Approximation \\
+\\
+RNG \hfill Random Number Generator \\
+\\
+RANS \hfill Reynolds Averaged Navier Stokes \\
+\\
+GPU \hfill Graphic Processing Unit \\ 
+\\
+NURBS \hfill Non Uniform Rational B-Splines \\
+\\
+LTT \hfill Lab of Thermal Turbomachines \\
+\\
+CUDA \hfill Compute Unified Device Architecture \\
+\\
+MAE \hfill Mean Absolute Error \\
+\hrule
+%------------------------------------------------------
+
+\newpage
+\thispagestyle{empty}
+\mbox{}
+\newpage
+%-------------------------------------------------------
+
+%----------------Table of contents-----------------------
+\clearpage
+\pagenumbering{roman}
+\setcounter{page}{1}
+\tableofcontents
+\newpage
+%-------------------------------------------------------
+
+
+\chapter{Introduction}
+\pagenumbering{arabic}
+\setcounter{page}{1}
+\input{chapters/introduction}
+%-------------------------------------------------------
+
+\chapter{MAEAs with off-line training}
+\input{chapters/off_line}
+%-------------------------------------------------------
+
+\chapter{MAEAs with on-line training}
+\input{chapters/on_line}
+%--------------------------------------------------------
+
+\chapter{Surrogate Models}
+\input{chapters/surrogate_models}
+
+\chapter{Numerical Cases}
+\input{chapters/numerical_cases}
+
+\chapter{Airfoil Shape Optimization}
+\input{chapters/airfoil}
+
+\chapter{Conclusions and Future Work}
+\input{chapters/conclusion}
+
+
+%\chapter{Optimization using steepest descent method}
+%\input{chapters/steepest_descent}
+%\newpage
+%--------------------------------------------------
+
+\appendix
+\input{chapters/appendix}
+\newpage
+%---------------------------------------------------
+
+\begin{thebibliography}{9}
+
+\bibitem{MAEA}
+Y.S. Ong, P.B. Nair, and A.J. Keane. Evolutionary 
+optimization of computationally expensive problems via 
+surrogate modeling. \textit{AIAA Journal}, 
+41(4): 687–696, 2003.
+
+\bibitem{preprint_SMT}
+M.A. Bouhlel, J.T. Hwang, N. Bartoli, R. Lafage, 
+J. Morlier, and J.R.R.A. Martins. A Python surrogate 
+modeling framework with derivatives. \textit{Advances 
+in Engineering Software}, 135, 2019.
+
+\bibitem{DOE}
+D.C. Montgomery. Design and Analysis of Experiments. John 
+Wiley \& Sons, New York, USA, 6th edition, 2005.
+
+\bibitem{EAs} Κ. Χ. Γιαννάκογλου. Μέθοδοι Βελτιστοποίησης 
+στην Αεροδυναμική. Πανεπιστημιακές Εκδόσεις Ε.Μ.Π., 
+Αθήνα, σελίδες 125-130, 2006.
+
+\bibitem{NSGA}
+N. Srinivas and K. Deb. Multiobjective optimization using 
+nondominated sorting in genetic algorithms. 
+\textit{Evolutionary Computation}, 2(3): 221–248, 1995.
+
+\bibitem{SPEA}
+E. Zitzler and L. Thiele. Multiobjective evolutionary 
+algorithms: A comparative case study and the Strength 
+Pareto approach. \textit{IEEE Transactions on Evolutionary
+Computation}, 3(4): 257–271, November 1999.
+
+\bibitem{NSGA_2}
+K. Deb, S. Agrawal, A. Pratap, and T. Meyarivan. A fast 
+elitist non-dominated sorting genetic algorithm for 
+multi-objective optimization: NSGA-II. In
+\textit{Parallel Problem Solving from Nature – PPSN 
+VI}, Paris, France, 2000. 
+
+\bibitem{SPEA_2}
+E. Zitzler, M. Laumans, and L. Thiele. SPEA2: Improving 
+the strength Pareto evolutionary algorithm for 
+multiobjective optimization. In \textit{Eurogen 2001, 
+Evolutionary Methods for Design, Optimisation and Control 
+with Applications to Industrial Problems}, Barcelona, 
+pp. 19-26, 2002.
+
+%--------------------Off-line---------------------
+\bibitem{global_metamodel}
+M. Farina. A neural network based generalized response 
+surface multiobjective evolutionary algorithm. In 
+\textit{2002 Congress on Evolutionary Computation – CEC 
+’02}, Honolulu, HI, USA, May 2002.
+
+\bibitem{DOE1}
+J.R. Wagner, E.M. Mount, and H.F. Giles. \textit{Plastics 
+Design Library, Volume: Extrusion}, chapter Design of 
+Experiments, Elsevier Science, 2nd edition, pp. 291-308, 
+2014.
+
+\bibitem{DOE2}
+A. Sethuramiah and R. Kumar. \textit{Modeling of Chemical 
+Wear}, chapter Statistics and Experimental Design in 
+Perspective, Elsevier Science, pages 129-159, 2016.
+
+\bibitem{Random}
+R. Mead, S. Gilmour, and  A. Mead. \textit{Statistical 
+principles for the design of experiments}. Cambridge 
+University Press, 1st ed., pp. 233-271, 2012.
+
+\bibitem{Latin Hypercube}
+M. Stein. Large Sample Properties of Simulations Using Latin 
+Hypercube Sampling. \textit{Technometrics}, 29: 143-151, 
+1987. 
+
+\bibitem{LHS}
+I. Ronald. Latin Hypercube Sampling. \textit{ResearchGate}, 
+January 1999.
+
+\bibitem{LHS method}
+M. McKay, R. Beckman, and W. Conover. A comparison of three methods 
+for selecting values of input variables in the analysis of output 
+from a computer code. \textit{Technometrics}, 21: 239–245, 1979.
+
+\bibitem{maximin}
+M. Johnson, L. Moore and D. Ylvisaker. Minimax and maximin 
+distance designs, \textit{Journal of Statistical Planning and 
+Inference}, 26(2): 131-148, 1990.
+
+\bibitem{maximin2}
+T. Santner, B. Williams, and W. Notz. \textit{The Design and 
+analysis of computer experiments}. Springer, 2nd edition, 
+pp. 145-200, 2018.
+ 
+\bibitem{entropy}
+C.E. Shannon, A mathematical theory of communication. 
+\textit{Bell System Technical Journal}, 27(3): 379-423, 1948.
+
+\bibitem{max_entropy}
+M.C. Shewry and H.P. Wynn. Maximum entropy sampling. 
+\textit{Journal of Applied Statistics}, 14(2): 165-170, 1987.
+
+%\bibitem{max_entrop2}
+%J.R. Koehler and  A.B. Owen. Computer experiments. In  S. 
+%Ghosh, and  C.R. Rao, \textit{Handbook of Statistics}, vol. 
+%13, Elsevier Science, pages 261-308, 1996.
+
+\bibitem{SE}
+Y.G. Saab, Y.B. Rao. Combinatorial optimization by 
+stochastic evolution IEEE Trans. \textit{Computer-Aided 
+Design}, pp. 525-535, September 1991,
+
+\bibitem{ESE}
+R. Jin , W. Chen, and A. Sudjianto. An efficient 
+algorithm for constructing optimal design of computer 
+experiments. \textit{Journal of Statistical Planning and 
+Inference}, 134(1): 268-287, 2005.
+
+\bibitem{fp criterion}
+M.D. Morris and  T.J. Mitchell. Exploratory Designs for 
+Computational Experiments. \textit{Journal of statistical 
+planning and inference}, 43: 381-402, 1995. 
+
+\bibitem{discrepancy}
+F.J. Hickernell. A  generalized  discrepancy  and  quadrature  
+error  bound. \textit{Mathematics of Computation}, 67: 299-322, 
+1998.  
+
+\bibitem{Factorial}
+D.C. Montgomery. \textit{Design and Analysis of Experiments}. 
+Wiley, 9th edition, pp. 179-229, 2017.
+
+%\bibitem{Full_Factorial1}
+%P. Sahoo and T.Kr. Barman. ANN modelling of 
+%fractal dimension in machining. In J.P. Davim,  
+%\textit{Mechatronics and Manufacturing Engineering}, 
+%Woodhead Publishing Reviews: Mechanical Engineering 
+%Series, pages 159–226, 2012.
+
+\bibitem{Full_Factorial2}
+J. Antony. \textit{Design of Experiments for Engineers and 
+Scientists}, chapter Full Factorial Designs. Elsevier 
+Science, 2nd edition, pp. 63-85, 2014.
+
+\bibitem{Fractional Factorial}
+D.C. Montgomery. \textit{Design and Analysis of Experiments}. 
+Wiley, 9th edition, pp. 351-384, 2017.
+
+\bibitem{EASY}
+EASY - The Evolutionary Algorithms SYstem Home, 2012. 
+Retrieved from \url{http://velos0.ltt.mech.ntua.gr/EASY}
+%------------------------------------------------------------
+
+%-------------------On-line-----------------------------
+\bibitem{LCPE}
+M.K. Karakasis and K.C. Giannakoglou. On the use of 
+metamodel-assisted, multi-objective evolutionary algorithms. 
+\textit{Engineering Optimization}, 38(8):941–957, 2006.
+
+\bibitem{TPS}
+M.K. Karakasis and K.C. Giannakoglou. On the use of 
+metamodel-assisted, multi-objective evolutionary 
+algorithms. \textit{Engineering Optimization}, 38(8): 
+941-957, 2006.
+%------------------------------------------------------------
+
+%------------------Metamodels--------------------------------
+\bibitem{Kriging}
+A. Keane, A. Forrester, and A. Sóbester. 
+\textit{Engineering Design via Surrogate Modelling: A 
+Practical Guide}. Wiley, 1st edition, 2008.
+  
+\bibitem{Matern}
+C.E. Rasmussen and C.K.I. Williams. Gaussian Processes 
+for Machine Learning, the MIT Press, 2006.
+  
+\bibitem{Kriging1}
+G. Giangaspero, D. MacManus, and I. Goulos. Surrogate 
+models for the prediction of the aerodynamic performance 
+of exhaust systems. \textit{Aerospace Science and 
+Technology}, 92: 77-90, 2019.
+
+\bibitem{regression_model}
+S.N. Lophaven, H.B. Nielsen, J. Søndergaard. \textit{DACE: 
+a MatLab Kriging Toolbox}. Technical Report IMM-TR-2002-12, 
+2002.
+
+\bibitem{max_likelihood}
+D.R. Jones. A Taxonomy of Global Optimization Methods Based on
+Response Surfaces. \textit{Journal of Global Optimization}, 21(4): 
+345–383, 2001.
+
+\bibitem{BLUP}
+J. Sacks, S.B. Schiller, and W.J. Welch. Designs for 
+computer experiments.\textit{Technometrics}, 
+31(1): 41-47, 1989.
+
+\bibitem{COBYLA}
+M.J.D. Powell. A direct search optimization method that 
+models the objective and constraint functions by linear 
+interpolation. In S. Gomez and J-P Hennart, 
+\textit{Advances in Optimization and Numerical Analysis},
+Kluwer Academic (Dordrecht), pp. 51-67, 1994.
+
+\bibitem{noisy data}
+A.E. Hoerl. (1962). Application of ridge analysis to regression 
+problems. \textit{Chemical Engineering Progress} 58, 54-59, 1962.
+
+\bibitem{PLS}
+I. Helland. On structure of Partial Least Squares re-
+gression. \textit{Communication in Statistics - Simulation 
+and Computation} 17: 581–607, 1988.
+
+\bibitem{KPLS}
+M.A. Bouhlel, N. Bartoli, A. Otsmane, and J. Morlier. 
+Improving kriging surrogates of high-dimensional design 
+models by Partial Least Squares dimension reduction. 
+\textit{Structural and Multidisciplinary Optimization}, 
+53(5): 935-952, 2016.
+
+\bibitem{power_iter}
+C. Lanczos.  An iteration method for the solution of
+the eigenvalue problem of linear differential and integral
+operators. \textit{Journal of Research of the National 
+Bureau of Standards}, 45(4): 255-282, 1950.
+
+\bibitem{rotation_matrix}
+R. Manne.  Analysis of two Partial-Least-Squares 
+algorithms for multivariate calibration. 
+\textit{Chemometrics and Intelligent Laboratory Systems}, 
+2(1-3): 187-197, 1987. 
+
+\bibitem{KPLSK}
+M.A. Bouhlel, N. Bartoli, J. Morlier, and A. Otsmane. An 
+improved approach for estimating the hyperparameters of 
+the kriging model for high-dimensional problems through 
+the partial least squares method. \textit{Mathematical 
+Problems in Engineering}, 2016.
+
+\bibitem{RBF}
+M.J.D. Powell. \textit{The Theory of Radial Basis Function 
+Approximation}. Oxford University Press, pp. 105-210, 1992.
+
+\bibitem{RBF1}
+M. N. Oqielat. Scattered data approximation using radial 
+basis function with a cubic polynomial reproduction for 
+modelling leaf surface. \textit{Journal of Taibah 
+University for Science}, 12(3): 331-337, 2018.  
+
+\bibitem{RBF2}
+V. Bayona. An insight into RBF-FD approximations augmented 
+with polynomials. \textit{Computers} \& 
+\textit{Mathematics with Applications}, 77(9): 2337-2353, 
+2019. 
+%---------------------------------------------------------------
+
+%-------------------------Numerical cases-----------------------
+\bibitem{welded beam}
+T. Ray and K. M. Liew. A Swarm Metaphor for 
+Multiobjective Design Optimization. \textit{Engineering 
+Optimization} 34: 141-153, 2002.
+
+\bibitem{hypervolume indicator}
+J.D. Knowles, D.W. Corne, and M. Fleischer. Bounded Archiving 
+using the Lebesgue Measure. \textit{Congress on Evolutionary 
+Computation}, 4: 2490–2497, 2003.
+
+\bibitem{speed reducer}
+S.S. Rao. \textit{Engineering Optimization: Theory and 
+Practice}. Wiley, 5th ed., pp. 434-435, 2020.
+
+\bibitem{Golinski}
+J. Golinski. Optimal synthesis problems solved by means of 
+nonlinear programming and random methods. \textit{Journal Of 
+Mechanisms}, 5(3), 287-309, 1970.
+%------------------------------------------------------------
+
+%---------------------Airfoil--------------------------------
+\bibitem{Spalart Allmaras}
+P.R. Spalart and S.R. Allmaras. A One-Equation Turbulence Model 
+for Aerodynamic Flows. \textit{30th Aerospace Sciences Meeting and 
+Exhibit}, 1992.
+
+\bibitem{PUMA}
+K. Tsiakas. Development of shape parameterization techniques, a 
+flow solver and its adjoint, for optimization on GPUs. 
+Turbomachinery and external aero-dynamics applications. PhD thesis, 
+Laboratory of Thermal Turbomachines, NTUA, Athens, 2019.
+
+\bibitem{PUMA_GPU}
+I.C. Kampolis, X.S Trompoukis, V.G. Asouti, K.C. Giannakoglou. 
+CFD-based analysis and two-level aerodynamic optimization on 
+graphics processing units. \textit{Computer Methods in Applied 
+Mechanics and Engineering}, 199(9–12): 712–722, 2010.
+
+\bibitem{Favre}
+A.J.A Favre. Equations des gaz turbulents compressibles. 
+\textit{Journal de Mecanique}, 4, 1965.
+
+\bibitem{Flat plate SA}
+G. Kalitzin, G. Medic, G. Iaccarino and P. Durbin. Near-wall 
+behaviour of RANS turbulence models and implications for wall 
+functions. \textit{Journal of Computational Physics}, 204: 265-291,
+2005.
+
+\bibitem{SA clarification}
+S. Allmaras, F. Johnson, and P. Spalart. Modifications and 
+clarifications for the implementation of the Spalart-Allmaras 
+turbulence model. \textit{7th International Conference on 
+Computational Fluid Dynamics}, 2012.
+
+%------------------------------------------------------------
+
+%-------------------Conclusion----------------------------------
+%\bibitem{PCA}
+%H. Abdi and L.J. Williams. Principal component analysis. 
+%\textit{Wiley Interdisciplinary Reviews: Computational 
+%Statistics}, 2(4): 433–459, 2010.
+
+\bibitem{DEA}
+F. Herrera, M. Lozano, and C. Moraga. Hierarchical 
+distributed genetic algorithms. \textit{International 
+Journal of Intelligent Systems}, 14(11): 1099–1121, 1999.
+
+\bibitem{DEA1}
+Y.-J. Gong, W.-N. Chen, Z.-H. Zhan, J. Zhang, Y. Li, Q. 
+Zhang, and J.-J Li. Distributed evolutionary algorithms 
+and their models: A survey of the state-of-the-art. 
+\textit{Applied Soft Computing}, 34: 286–300, 2015.
+
+\bibitem{DMAEA}
+W. Annicchiarico. Metamodel-assisted distributed genetic 
+algorithms applied to structural shape optimization 
+problems. \textit{Engineering Optimization}, 39(7): 
+757-772, 2007.
+
+\bibitem{HEA}
+J.F. Wang and J. Periaux and M. Sefrioui. Parallel 
+evolutionary algorithms for optimization problems in 
+aerospace engineering. \textit{Journal of Computational 
+and Applied Mathematics}, 149(1): 155-169, 2002.
+
+\bibitem{HDEA}
+I.C. Kampolis and K.C. Giannakoglou. Distributed 
+evolutionary algorithms with hierarchical evaluation. 
+\textit{Engineering Optimization}, 41(11): 1037–1049, 
+2009.
+
+\bibitem{HDMAEA}
+M. K. Karakasis, D. G Koubogiannis, and K. C Giannakoglou. 
+Hierarchical distributed metamodel-assisted evolutionary 
+algorithms in shape optimization. \textit{International 
+Journal for Numerical Methods in Fluids}, 53(3): 455–469, 
+2006.
+
+%\bibitem{PEA}
+%P. Adamidis. \textit{Parallel Evolutionary Algorithms: A 
+%Review}, 1999.
+
+\bibitem{MA}
+N. Krasnogor and J. Smith. A tutorial for competent 
+memetic algorithms: model, taxonomy, and design issues. 
+\textit{IEEE Transactions on Evolutionary Computation},
+9(5): 474–488, 2005.
+
+\bibitem{MAMA}
+C.A. Georgopoulou and K.C. Giannakoglou.
+Memetic Algorithms. \textit{Springer Series}, 2009.
+
+\bibitem{MAMA1}
+C.A. Georgopoulou and K.C. Giannakoglou. A multi-objective 
+metamodel-assisted memetic algorithm with strength-based 
+local refinement. \textit{Engineering Optimization},
+41(10): 909–923, 2009.
+
+\bibitem{AEA}
+E.O. Scott and K.A De Jong. Understanding Simple 
+Asynchronous Evolutionary Algorithms. \textit{Proceedings 
+of the 2015 ACM Conference on Foundations of Genetic 
+Algorithms XIII}. FOGA ’15: Foundations of Genetic 
+Algorithms XIII, 2015.
+
+\bibitem{AEA1}
+V.G. Asouti and K.C. Giannakoglou. Aerodynamic 
+optimization using a parallel asynchronous evolutionary 
+algorithm controlled by strongly interacting demes. 
+\textit{Engineering Optimization}, 41(3): 241–257, 2009.
+
+\bibitem{AMAEA}
+V.G. Asouti, I.C. Kampolis, and K.C. Giannakoglou. A 
+grid-enabled asynchronous metamodel-assisted evolutionary 
+algorithm for aerodynamic optimization. \textit{Genetic
+Programming and Evolvable Machines (SI:Parallel and 
+Distributed Evolutionary Algorithms, Part One)}, 
+10(3): 373–389, 2009.
+%------------------------------------------------------------
+
+%------------------Appendix--------------------------
+ 
+\bibitem{wing_weight}
+D.P. Raymer. Aircraft Design: A Conceptual Approach. AIAA 
+Education Series, 6th edition, pp. 559-584, 2018. 
+
+\bibitem{Evektor}
+A. Pistek and R. Popela. The VUT 100/200 General 
+Aviation Aircraft Family: Project and Realization. 
+Proceedings of the Institution of Mechanical Engineers, 
+Part G: \textit{Journal of Aerospace Engineering}, 221(2): 
+193-197, 2007.
+
+\bibitem{error_scores}
+\textit{3.3. Metrics and scoring: quantifying the quality 
+of prediction}s — scikit-learn 0.24.1 documentation. 
+Retrieved January 17, 2021 from 
+\url{https://scikit-learn.org/stable/modules/
+model_evaluation.html#regression-metrics}.
+
+\bibitem{pyDOE}
+pyDOE: The experimental design package for python — pyDOE 
+0.3.6 documentation. Retrieved February 2021 from 
+\url{https://pythonhosted.org/pyDOE/index.html}.
+
+\bibitem{scipy}
+scipy.optimize.fmin\_cobyla — SciPy v1.6.1 Reference 
+Guide. Retrieved 17 January, 2021 from 
+\url{https://docs.scipy.org/doc/scipy/reference/generated/
+scipy.optimize.fmin_cobyla.html}.
+
+\end{thebibliography}
+
+\newpage
+%----------------------------------------------------------------
+
+
+%------------------------------------------------------------------
+%------------------Overview in greek-----------------------------
+
+\clearpage
+\pagenumbering{roman}
+\setcounter{page}{1}
+\newpage
+
+\begin{wrapfigure}{l}{0.25\textwidth}
+\includegraphics[width=0.6\textwidth]{NTUA}
+\end{wrapfigure}
+
+\hspace{-8mm}
+\textbf{Eθνικό Μετσόβιο Πολυτεχνείο} \\
+\textbf{Σχολή Μηχανολόγων Μηχανικών} \\
+\textbf{Τομέας Ρευστών} \\
+\textbf{Μονάδα Παράλληλης Υπολογιστικής Ρευστοδυναμικής \& 
+Βελτιστοποίησης} \\
+
+\hspace{-2mm}
+\begin{center}
+\textbf{Περί Βέλτιστης Χρήσης Μεταπροτύπων στους Εξελικτικούς 
+Αλγορίθμους με Εφαρμογές στην Αεροδυναμική} \\[3mm]
+Διπλωματική Εργασία \\[1mm]
+\textbf{Μιχάλης Δημήτριος} \\[3mm]
+Επιβλέπων: Kυριάκος Χ. Γιαννάκογλου, Καθηγητής ΕΜΠ \\[1mm]
+Αθήνα, 2022 \\[6mm]
+\large \textbf{ΕΚΤΕΝΗΣ ΠΕΡΙΛΗΨΗ ΣΤΑ ΕΛΛΗΝΙΚΑ} \\
+\end{center}
+
+\vfill 
+
+Στο πλαίσιο αυτής της διπλωματικής εργασίας μελετάται η 
+εφαρμογή εξελικτικών αλγορίθμων υποβοηθούμενων από μεταμοντέλα 
+( Metamodel-Assisted EAs MAEAs) σε διάφορες εφαρμογές 
+μηχανολογικού ενδιαφέροντος. Δύο είναι οι κύριες μέθοδοι 
+βελτιστοποίησης με εφαρμογή των MAEAs και σχετίζονται με τον τρόπο 
+εκπαίδευσης των μεταμοντέλων, δηλαδή συνδεδεμένα (on-line) και 
+αποσυνδεδεμένα (off-line) από την εξέλιξη. Και οι δύο αυτοί μέθοδοι 
+εφαρμόζονται με τη βοήθεια ενός εξωτερικού λογισμικού με βάση την 
+Python, που ονομάζεται Surrogate Model Toolbox (SMT)
+\cite{preprint_SMT_app}, και συγκρίνονται με τους κοινούς ΕΑs με 
+βάση την αποτελεσματικότητα και το υπολογιστικό κόστος που 
+προκύπτει από τη χρήση τους. Η βελτιστοποίηση σε κάθε περίπτωση 
+πραγματοποιείται με τη χρήση του EASY\cite{EASY_app} (Evolutionary 
+Algorithm SYstem), ενός λογισμικού που αναπτύχθηκε από τη Μονάδα 
+Παράλληλης Υπολογιστικής Ρευστοδυναμικής \& Βελτιστοποίησης (ΜΠΥΡΒ) 
+του ΕΜΠ. Από τα διάφορα ενσωματωμένα μεταμοντέλα που υπάρχουν στον 
+EASY, οι συναρτήσεις ακτινικής βάσης\cite{RBF_app} (Radial Basis 
+Functions RBFs) χρησιμοποιούνται στην παρούσα διπλωματική εργασία. 
+Ωστόσο, η βελτιστοποίηση μέσω του EASY μπορεί να υποβοηθηθεί από 
+εξωτερικά μεταπρότυπα, τα οποία είναι διαθέσιμα στο SMT. Από αυτά 
+τα εξωτερικά μεταμοντέλα, σε αυτή τη διπλωματική εργασία γίνεται 
+χρήση κυρίως του Kriging\cite{Kriging_app}, των παραλλαγών του για 
+χώρο σχεδιασμού μειωμένων διαστάσεων χάρη στην εφαρμογή της
+μεθόδου μερικών ελαχίστων τετραγώνων (Partial Least Squares PLS), 
+κυρίως του KPLS\cite{KPLS_app} και του KPLSK\cite{KPLSK_app}, 
+καθώς και των RBFs. Κάθε μια απο τις μεθόδους βελτιστοποίησης 
+εφαρμόζεται σε πρώτο στάδιο σε απλά προβλήματα ψευδο-μηχανικής, 
+κυρίως στην περίπτωση της συγκολλητής δοκού και του μειωτήρα 
+ταχύτητας, ενώ στη συνέχεια στη βελτιστοποίηση μορφής μιας 
+δισδιάστατης αεροτομής. Η επίλυση των εξισώσεων Reynolds 
+Averaged Navier-Stokes (RANS) συμπιεστού ρευστού γύρω από την 
+αεροτομή γίνεται με τη χρήση ενός CFD επιλύτη, που ονομάζεται 
+PUMA\cite{PUMA_app} και αναπτύχθηκε από τη ΜΠΥΡΒ/ΕΜΠ.
+
+
+\newpage
+%----------------------------------------------------------------
+
+\begin{itemize}
+\item \textbf{Εξελικτικοί Αλγόριθμοι (ΕΑ)}
+
+Οι ΕΑs\cite{EAs_app} έχουν τη βάση τους στην εξελικτική θεωρία του 
+Δαρβίνου που ορίζει την κυριαρχία $λ_{α}$ ατόμων σε κάθε 
+πληθυσμιακή γενιά (μ,λ). Σε κάθε γενιά αξιολογούνται $λ$ παιδιά στο 
+PSM, τα οποία βρίσκονται στο προσωρινό πληθυσμιακό σύνολο $P_{e}$, 
+και τους ανατίθεται μια τιμή από μια συνάρτηση κόστους 
+$Φ(\vec{β})$. Με βάση την τιμή που έχει το κάθε υποψήφιο άτομο 
+διαλέγονται οι ελίτ της συγκεκριμένης γενιάς και ανανεώνεται το 
+πληθυσμιακό σύνολο των ελίτ $P_{α}^{g+1}$ μέσω μιας διαδικασίας 
+ελιτισμού. Στη συνέχεια σχηματίζεται το σύνολο των γονιών της 
+επόμενης γενιάς $P_{μ}^{g+1}$, καθώς και των νέων παιδιών μέσω μιας 
+διαδικασίας ανάμειξης των γονιών $μ$ που συνοδεύεται από μια 
+διαδικασία μετάλλαξης. 
+
+\item \textbf{MAEAs με off-line εκπαίδευση} 
+
+Στην βελτιστοποίηση με χρήση MAEAs με off-line εκπαίδευση, ένα 
+καθολικό μεταμοντέλο εκπαιδεύεται αποκομμένα από την εξέλιξη, 
+με βάση $n_{doe}^{'}$ σημείων $\mathbf{X}$ που επιλέχθηκαν χάρη 
+στην εφαρμογή κάποιας DoE μεθόδου δειγματοληψίας. Στη συνέχεια, η 
+εξέλιξη πραγματοποιείται παρόμοια με τη μέθοδο των απλών 
+εξελικτικών, με τη μόνη διαφορά ότι η αξιολόγηση των παιδιών πλέον 
+γίνεται με τη χρήση των εκπαιδευμένων μεταμοντέλων. Η σύγκλιση της 
+μεθόδου βασίζεται στην ακρίβεια του καθολικού μεταμοντέλου. Οι 
+μέθοδοι DoE του SMT με βάση των οποίων πραγματοποιείται η 
+δειγματοληψία είναι εξής:
+
+\begin{itemize}
+\item Τυχαία δειγματοληψία (Random sampling)\cite{Random_app}
+
+\item Latin Hypercube Sampling (LHS)\cite{LHS_app}
+
+\begin{itemize}
+\item Centered
+
+\item Maximin\cite{maximin_app}
+
+\item Maximin centered
+
+\item Maxent\cite{max_entropy_app}
+
+\item Enhanched Stochastic Evolutionary (ESE)\cite{ESE_app}
+\end{itemize}
+
+\item Παραγοντική δειγματοληψία (πλήρης ή μερική)(Factorial 
+sampling)\cite{Factorial_app}
+\end{itemize}
+
+\item \textbf{MAEAs με on-line εκπαίδευση} 
+
+Η εκπαίδευση των μεταμοντέλων σε αυτή τη μέθοδο γίνεται αποτελεί 
+μέρος της εξέλιξης μέσω μιας διαδικασίας προσεγγιστικής 
+προ-αξιολόγησης (Low-Cost Pre-Evaluation LCPE \cite{LCPE_app}). Στο 
+πλαίσιο της διαδικασίας αυτής γίνεται η επιλογή κατάλληλων μοτίβων 
+εκπαίδευσης στην γειτονιά του κάθε υπο-αξιολόγησή $\vec{β}$ βάση των
+οποίων εκπαιδεύονται τοπικά, προσωποποιημένα μεταμοντέλα.
+\end{itemize}
+
+Η σύζευξη SMT και EASY απαιτεί τη σύνταξη των εξής κωδίκων στην 
+Python που εκτελούν τις παρακάτω ενέργειες:
+\begin{enumerate}
+\item Αξιολόγηση των δειγμάτων με το PSM
+
+\item Εκπαίδευση του μεταμοντέλου
+
+\item Πρόβλεψη με βάση το εκπαιδευμένο μεταμοντέλο
+\end{enumerate}
+
+\newpage
+%----------------------------------------------------------------
+
+
+Η ιδιαιτερότητα και η καινοτομία του EASY βρίσκεται στην on-line 
+εκπαίδευση, όπου η επέμβαση του χρήστη στην περίπτωση των εξωτερικών 
+μεταμοντέλων γίνεται με την κλήση των ανωτέρω κωδίκων. Οι κώδικες 
+αυτοί καλούνται στην συνέχεια από τον EASY μέσω κατάλληλα 
+διαμορφωμένων batch αρχείων. Η χρήση εσωτερικών μεταμοντέλων απαιτεί 
+τη σύνταξη μόνο ενός κώδικα που είναι υπεύθυνος για την αξιολόγηση 
+των υποψήφιων λύσεων.
+
+Στους MAEAs με off-line εκπαίδευση όλες οι διεργασίες της 
+βελτιστοποίησης καλούνται μέσα από ένα καθολικό κώδικα της Python 
+και επιπρόσθετα συντάσσεται ένας κώδικας που εκτελεί τη 
+δειγματοληψία, καθώς και ένας για την επαναξιολόγηση της 'βέλτιστης' 
+λύσης με το PSM. Η off-line εκπαίδευση είναι δυνατό να 
+πραγματοποιηθεί από εσωτερικά μεταμοντέλα του EASY, ωστόσο δεν 
+ενδείκνυται.
+
+Στην βελτιστοποίηση μέσω του EASY με MAEAs με off-line και 
+on-line εκπαίδευση γίνεται χρήση εξωτερικών μεταμοντέλων που 
+είναι διαθέσιμα στο SMT. Αυτά είναι τα ακόλουθα:
+
+\begin{itemize}
+\item \textbf{Kriging}
+
+Στο Kriging η προσέγγιση της επιθυμητής λύσης γίνεται μέσω της 
+συνάρτησης:
+\begin{equation}
+\mathrm{\hat{f}}(\vec{β}) = 
+\vec{p}^{\hspace{1mm} Τ}(\vec{β}) 
+\hat{\vec{\mathrm{w}}} + \vec{r}_{Xβ}\mathbf{R}^{-1} 
+\left(\mathbf{F} - \mathbf{P}\hat{\vec{\mathrm{w}}} 
+\right)
+\end{equation}
+\\[-3mm]
+όπου $μ_{Κ} = \vec{p}^{\hspace{1mm} Τ}(\vec{β}) 
+\hat{\vec{\mathrm{w}}}$ είναι ένας ντετερμινιστικός όρος που 
+μπορεί να εκφραστεί ως σταθερό, γραμμικό ή τετραγωνικό μοντέλο 
+παλινδρόμησης.
+Ο 2ος όρος είναι πραγματοποίηση μιας Gaussian διεργασίας
+$z(\vec{β}) \!\backsim \!N(0,C)$ με μηδενική μέση τιμή και 
+συνδιακύμανση $C(\vec{β}) \! = \!σ^{2} R(\vec{χ}_{i}, \vec{χ_{j}})$ 
+των παρατηρούμενων μεγεθών. Η συσχέτιση μεταξύ των μεγεθών δίνεται 
+στο SMT από την εκθετική συνάρτηση:
+\begin{equation}
+R \left( \vec{χ_{i}}, \vec{χ_{j}} \right) = 
+\prod_{l=1}^{n_{β}}exp \left( -\theta_{l} 
+\left| χ_{i,l} - χ_{j,l} \right| \right)
+\end{equation}
+\\[-2mm]
+ενώ διατίθενται και οι συναρτήσεις Gaussian, Mat\'ern 5/2 και 
+Mat\'ern 3/2. Στο Kriging δίνεται η δυνατότητα δυνατότητα να 
+υπολογιστεί και η σχετική αβεβαιότητα της πρόβλεψης από τη σχέση:
+\begin{equation}
+MSE(\vec{β}) = \hat{σ}^{2}(1 -  \vec{r}_{Xβ}^{\hspace{1mm} Τ} 
+\mathbf{R}^{-1}\vec{r}_{Xβ})
+\end{equation}
+
+Η επίλυση των παραπάνω εξισώσεων απαιτεί τον υπολογισμό των 
+παραμέτρων συσχέτισης $θ \!\in \!\mathbb{R}^{n_{β}}$ που προκύπτουν 
+από τη μεγιστοποίηση της συνάρτησης πιθανοφάνειας που δίνεται από 
+την εξίσωση:
+\begin{equation}
+\begin{split}
+ln(l_{F}(\vec{θ} | \mathbf{F})) = & 
+-\dfrac{n_{t}}{2} ln \left[
+\dfrac{1}{n_{t}} \left( \mathbf{F} - \mathbf{P} (\mathbf{P}^{T} 
+\mathbf{R}^{-1}\mathbf{P})^{-1} 
+\mathbf{P}^{T}\mathbf{R}^{-1}\mathbf{F} \right)^{T}
+\right.
+\\ & \times \left.  
+\mathbf{R}^{-1} \left( \mathbf{F} - \mathbf{P} 
+\left(\mathbf{P}^{T} \mathbf{R}^{-1}\mathbf{P}
+\right)^{-1} \mathbf{P}^{T}\mathbf{R}^{-1}\mathbf{F}
+\right) \right] + ln(det\mathbf{R} )
+\end{split}	
+\end{equation}
+
+\newpage
+%------------------------------------------------------------
+
+
+\item \textbf{KPLS} 
+
+Σε μια προσπάθεια να ελαττωθεί ο χρόνος κατασκευής του Kriging σε 
+χώρους σχεδιασμού υψηλής διαστατικότητας γίνεται εφαρμογή της 
+μεθόδου PLS, που οδηγεί σε αναγωγή του χώρου σχεδιασμού σε $h \! <
+\!n_{β}$ διαστάσεις. Η χρήση του KPLS μοντέλου οδηγεί σε προσαρμογή 
+της εκθετικής (και Gaussian) συσχέτισης ως εξής:
+\begin{equation}
+R \left( \vec{χ_{i}}, \vec{χ_{j}} \right) = 
+\prod_{l=1}^{h} \prod_{k=1}^{n_{β}} exp \left( -\theta_{l} 
+\left| D_{*k}^{(l)}χ_{i,k} - D_{*k}^{(l)} χ_{j,k} \right| 
+\right)
+\end{equation}              
+\\
+όπου το μητρώο $\mathbf{D}_{*} \!= \![\vec{D}_{*}^{(1)}, \vec{D}
+_{*}^{(2)}, \hdots, \vec{D}_{*}^{(h)}] \!\in \mathbb{R}^{n_{β} 
+\times h}$ εκφράζει την επιρροή κάθε διάστασης $k \!\in \![1,n_{β}]
+$ στην κατασκευή της $l$-ης μετασχηματισμένης διάστασης, έτσι ώστε 
+το $θ \! \in \!\mathbb{R}^{h}$.
+
+%----------------------
+\item \textbf{KPLSK}
+
+Οι μετασχηματισμένες συναρτήσεις συσχέτισης του KPLS είναι 
+ορισμένες σε υποσύνολο του $n_{β}$-διάστατου χώρου. Η ιδέα πίσω από 
+το KPLSK είναι να εκφραστούν οι συναρτήσεις αυτές στην ολότητα του 
+$n_{β}$-διάστατου χώρου όπου είναι εκφρασμένο το Kriging. Αυτό 
+επιτυγχάνεται στη Gaussian συνάρτηση, η οποία γράφεται στη μορφή: 
+\begin{equation}
+R \left( \vec{χ_{i}},\vec{χ_{j}} \right) 
+= \prod_{l=1}^{h} \prod_{k=1}^{n_{β}} exp \left(-
+\theta_{l} \left( D_{*k}^{(l)} χ_{i,k} - D_{*k}^{(l)} 
+χ_{j,k} \right)^2  \right)
+= \prod_{k=1}^{n_{β}}exp \left( 
+- η_{k} \left( χ_{i,k} - χ_{j,k} \right)^2 \right)
+\end{equation}
+\\[-2mm]
+όπου ο όρος $η_{k}=\sum_{l=1}^{h} θ_{l} D_{*k}^{(l)^2}$ 
+για $k=1,2,\hdots,n_{β}$ δρα ως αρχικό σημείο για την τοπική 
+βελτιστοποίηση της συνάρτησης πιθανοφάνειας του Kriging με βάση τις 
+τιμές των παραμέτρων $θ^{(l)}$ που προκύπτουν από την εφαρμογή του 
+KPLS για $l = 1,2 \hdots, h$. 
+
+%---------------------
+\item \textbf{RBFs}
+
+Το μεταμοντέλο των RBFs, χρησιμοποιεί $n_{t}$ παρατηρούμενα ζεύγη 
+$(\vec{χ}, f(\vec{χ}))$ για να εκφράσει τη συνάρτηση προσέγγισης 
+σε κάποιο σημείο $β \!\in \mathbb{R}^{n_{β}}$ ως γραμμικό συνδυασμό 
+συναρτήσεων βάσης με κέντρα το εκάστοτε σημείο $(\vec{χ}_{ξ}$, που 
+εκφράζεται μαθηματικά ως: 
+\begin{equation}
+\begin{split}
+& s(\vec{β}) =\sum_{j=1}^{n_{t}} 
+\mathrm{w}_{t_{j}} g \left( \lVert \vec{β} - \vec{χ}_{j} 
+\rVert \right) =
+\sum_{j=1}^{n_{t}} \mathrm{w}_{t_{j}} g(r_{j})
+\\ &
+\text{έτσι ώστε} \hspace{3mm} s(\vec{χ}_{i}) 
+= F(\vec{χ}_{i}) = F_{i}
+\hspace{5mm} ,\text{for} \hspace{2mm} i =1,n_{t}
+\end{split}
+\end{equation} 
+\\[-3mm]
+Οι μέθοδος αυτή είναι δυνατόν να συνδυαστεί και με ένα γραμμικό 
+μοντέλο παλινδρόμησης:
+\begin{equation}
+s(\vec{β}) =  \sum_{j=1}^{n_{t}} 
+\mathrm{w}_{t_{j}} g \left( \lVert \vec{β} - \vec{χ}_{j} 
+\rVert \right) +
+\sum_{i=1}^{k}{\mathrm{w}_{i}} p_{i}(\vec{β}) 
+\end{equation}
+
+\end{itemize}
+
+\vspace{0.6cm}
+
+\begin{itemize}
+\item \textbf{Εφαρμογή σε προβλήματα ψευδο-βελτιστοποίησης}
+\end{itemize}
+
+H αποτελεσματικότητα των μεταμοντέλων δοκιμάζεται αρχικά σε δυο 
+απλές εφαρμογές ψευδο-μηχανικής χαμηλού υπολογιστικού 
+κόστους. Η πρώτη εφαρμογή αφορά τη μείωση του κόστους κατασκευής 
+μια συγκολλητής ράβδου σε [\$]\cite{welded beam_app} και η δεύτερη 
+τη μείωση του βάρους ενός μειωτήρα ταχύτητας σε [$g$]\cite{speed 
+reducer_app}. Η μελέτη σε αυτή τη διπλωματική επικεντρώθηκε στη 
+σύγκριση μεταξύ των αποτελεσμάτων που προέκυψαν από τη 
+βελτιστοποίηση με χρήση απλών εξελικτικών, MAEAs με off-line 
+εκπαίδευση και MAEA με on-line εκπαιδευμένα μεταμοντέλα τα 
+οποία εκαπιδεύονται μέσω του SMT και του EASY. Τα αποτελέσματα της 
+μελέτης παρουσιάζονται στη συνέχεια:
+
+\begin{enumerate}
+\item \textbf{\textit{Περίπτωση συγκολλητής δοκού ενός στόχου}} \\
+Πρόβλημα 4 μεταβλητών σχεδιασμού $\vec{β} = \left( β_{1}, β_{2}, 
+β_{3}, β_{4} \right)\!= \!\left( h, l, t, b \right) \in \mathbb{R}
+^{4}$ με 5 περιορισμούς: \\[-3mm]
+\begin{equation}
+\begin{split}
+min \hspace{2mm} & f(\vec{β}) = 1.10471β_{1}^{2}β_{2} + 
+0.04811β_{3}β_{4}(14.0 + β_{2}) 
+\\[0.2cm] 
+\text{subject to} \hspace{2mm} & c_{1}(\vec{β}) = 
+τ(\vec{β}) - τ_{max} \leq 0 
+\\ &
+c_{2}(\vec{β}) = σ(\vec{β}) - σ_{max} \leq 0
+\\ &
+c_{3}(\vec{β}) = β_{1} - β_{4} \leq 0
+\\ &
+c_{4}(\vec{β}) = δ(\vec{β}) - δ_{max} \leq 0
+\\ &
+c_{5}(\vec{β}) = P - P_{c}(\vec{β}) \leq 0
+\end{split}
+\end{equation}
+
+Ακολουθεί η σύγκριση μεταξύ των διαθέσιμων μεταμοντέλων του SMT 5 
+αρχικοποιήσεις RNG και τερματισμό στις 10000 PSM αξιολογήσεις: 
+\begin{table}[h!]
+\centering
+%\rowcolors{2}{gray!30!}{white!50!gray!10}
+\scalebox{0.8}{%
+\begin{tabular}[c]{ |p{1.7cm}||p{1.6cm}|p{1.6cm}|p{1.6cm}|
+p{1.6cm}|p{1.6cm}|}
+\toprule
+\multicolumn{6}{|c|}{\cellcolor{gray!30!} 
+\textbf{Περίπτωση συγκολλητής δοκού}} \\
+\midrule 
+\textbf{MAEAs, on-line} & $(μ,λ)$ \textbf{population}  
+& \textbf{KPLS} & \textbf{KPLSK} & \textbf{Kriging} 
+& \textbf{RBFs} \\
+\hline
+\textbf{SMT} & (30, 100) & 2.45 & 2.74 & 2.72 & 2.62 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Περίπτωση συγκολλητής δοκού με RNG1. Η βέλτιστη λύση 
+βρέθηκε από ΜΑΕΑ με on-line εκπαιδευμένων μεταμοντέλων μέσω 
+του SMT}
+\end{table}
+
+\begin{figure}[h!]
+\centering
+	\begin{subfigure}[b]{0.49\textwidth}
+	\centering
+	\includegraphics[width=\textwidth, height = 0.7\textwidth, 
+	scale=1]{welded_beam_online_comparison.pdf}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.49\textwidth}
+	\centering
+	\includegraphics[width=\textwidth, height = 0.7\textwidth, 
+	scale=1]{welded_beam_online_comparison2.pdf}
+	\end{subfigure}   
+\caption{Περίπτωση συγκολλητής δοκού με RNG1. Σύγκριση μεταξύ της 
+σύγκλισης EAs and MAEAs με on-line εκπαιδευμένων μεταμοντέλων μέσω 
+SMT} 
+\end{figure}
+
+\newpage
+%-----------------------------------------------------------------
+
+
+Το πόρισμα της μελέτης είναι ότι η χρήση του KPLS οδηγεί σε 
+βέλτιστη σύγκλιση του προβλήματος της συγκολλητής δοκού, επομένως 
+το KPLS συγκρίνεται στη συνέχεια με τις on-line εκπαιδευμένες 
+RBFs που διαθέτει ο EASY.
+ 
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.45\textwidth, scale=1]
+{welded_beam_online.pdf}   
+\caption{Περίπτωση συγκολλητής δοκού με RNG1. Σύγκριση μεταξύ του 
+ιστορικού σύγκλισης απλών EAs and MAEAs με χρήση on-line 
+εκπαιδευμένων μεταμοντέλων μέσω SMT και του EASY} 
+\end{figure}
+
+Το ιστορικό σύγκλισης φανερώνει την υπεροχή MAEAs με χρήση των 
+on-line εκπαιδευμένων και ενσωματωμένων στον EASY RBFs έναντι 
+των υπόλοιπων μεθόδων βελτιστοποίησης.
+
+%-----------
+\vspace{0.5cm}
+\item \textbf{\textit{Περίπτωση συγκολλητής δοκού δύο στόχων}} \\
+Σε αυτή την περίπτωση τίθεται ως δεύτερος στόχος η μείωση της 
+παραμόρφωσης $δ$ στο άκρο της δοκού και η βελτιστοποίηση 
+πραγματοποιείται με MAEA με on-line εκπαίδευση για 1000 PSM 
+αξιολογήσεις:
+
+\vspace{-4mm}
+
+\begin{figure}[h!]
+\centering
+\includegraphics[width=0.45\textwidth]{pareto_welded_beam.pdf}
+\caption{Μέτωπο Pareto των 15 μη-κυριαρχούμενων υποψήφιων λύσεων  
+που βρέθηκαν μετά την πραγματοποίηση 1000 PSM αξιολογήσεων} 
+\end{figure}
+
+\vspace{-4mm}
+
+\begin{table}[h!]
+\centering
+%\rowcolors{2}{gray!30!}{white!50!gray!10}
+\scalebox{0.8}{%
+\begin{tabular}[c]{ |p{5.1cm}||p{2cm}|}
+\toprule
+\multicolumn{2}{|c|}{\cellcolor{gray!30!} 
+\textbf{Δείκτης υπερόγκου για RNG1} $\mathbf{H(\bm{\mathcal{F})}}$} 
+\\
+\midrule 
+\hline
+\textbf{MAEAs, on-line, SMT} & 1.6222 \\
+\textbf{MAEAs, on-line, EASY} & 1.6215 \\
+\textbf{EAs} & 1.6061 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Περίπτωση συγκολλητής δοκού. Δείκτης υπερόγκου των μετώπων 
+Pareto που προέκυψαν από την εφαρμογή των διαφόρων μεθόδων 
+βελτιστοποίησης}
+\end{table} 
+
+\newpage
+%----------------------------------------------------------------
+
+
+Σε αυτή την περίπτωση φαίνεται πως τα MAEA με χρήση on-line 
+εκπαιδευμένων μεταμοντέλων μέσω του SMT οδηγούν στη δημιουργία του 
+καλύτερου μετώπου Pareto συγκριτικά με τις υπόλοιπες μεθόδους.
+
+
+\item \textbf{\textit{Περίπτωση μειωτήρα ταχύτητας ενός στόχου}} \\
+Πρόβλημα ελαχιστοποίησης του βάρους σε [g] ενός μειωτήρα ταχύτητας
+με 7 μεταβλητές σχεδιασμού και 11 κατασκευαστικούς περιορισμούς:
+\begin{equation}
+\begin{split}
+min \hspace{2mm} f(\vec{β}) = \hspace{2mm} & 
+0.7854bm^{2} \left( 3.3333 N_{teeth}^{2} + 14.9334 N_{teeth} 
+- 43.0934 \right) - 1.508\left( d_{1}^{\hspace{1mm}2} + 
+d_{2}^{\hspace{1mm}2} \right) 
+\\ &
+7.4777 \left( d_{1}^{\hspace{1mm}3} + d_{2}^{\hspace{1mm}3} 
+\right) + 0.7854 \left( L_{1}d_{1}^{\hspace{1mm}2} 
++ L_{2}d_{2}^{\hspace{1mm}2} \right)
+\end{split}
+\end{equation}
+\\[-4mm]
+Αρχικά έγινε σύγκριση μεταξύ της σύγκλισης MAEA με on-line
+εκπαιδευμένων μεταμοντέλων μέσω του SMT. H βελτιστοποίηση με ΕΑs 
+και MAEAs έχει σε κάθε περίπτωση ως κριτήριο τερματισμού τις 
+20000 PSM αξιολογήσεις και επαναλήφθηκε με 5 RNG τιμές.
+
+\begin{figure}[h!]
+\centering
+	\begin{subfigure}[b]{0.47\textwidth}
+	\centering
+	\includegraphics[width=\textwidth, height=0.77\textwidth, 
+	scale=1]{speed_reducer_online_comparison.pdf}   
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.47\textwidth}
+	\centering
+	\includegraphics[width=\textwidth, height=0.77\textwidth, 
+	scale=1]{speed_reducer_online_comparison2.pdf}   
+	\end{subfigure}
+\caption{Περίπτωση μειωτήρα ταχύτητας με RNG1. Σύγκριση μεταξύ του 
+ιστορικού σύγκλισης EA και ΜΑΕΑ με on-line εκπαίδευση μέσω του 
+SMT} 
+\end{figure}
+
+H σύγκλιση του KPLSK συγκρίνεται στη συνέχεια με τις on-line 
+εκπαιδευμένες RBFs που διαθέτει ο EASY.
+
+\begin{figure}[h!]
+\centering
+	\begin{subfigure}[b]{0.47\textwidth}
+	\centering
+	\includegraphics[width=\textwidth, height=0.85\textwidth, 
+	scale=1]{speed_reducer_online.pdf}   
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.47\textwidth}
+	\centering
+	\includegraphics[width=\textwidth, height=0.85\textwidth, 
+	scale=1]{speed_reducer_online2.pdf}   
+	\end{subfigure}
+\caption{Περίπτωση μειωτήρα ταχύτητας με RNG1. Σύγκριση μεταξύ του 
+ιστορικού σύγκλισης EA και ΜΑΕΑ με on-line εκπαιδευμένων 
+μεταμοντέλων} 
+\end{figure}
+
+\newpage
+%---------------------------------------------------------
+
+
+\item \textbf{\textit{Περαιτέρω ανάλυση των δύο εφαρμογών ενός 
+στόχου}} \\
+Για την λήψη ορθότερης απόφασης στην επιλογή της καταλληλότερης 
+μεθόδου βελτιστοποίησης συμπεριλήφθηκε στην ανάλυση ο συνολικός 
+αριθμός κλήσεων του PSM και των μεταμοντέλων, όπου το υπολογιστικό 
+κόστος του δεύτερου είναι αμελητέο σε σχέση με το πρώτο.
+
+\begin{table}[h!]
+\centering
+%\rowcolors{2}{gray!30!}{white!50!gray!10}
+\scalebox{0.8}{%
+\begin{tabular}[c]{ |p{5cm}||p{2.8cm}|p{1cm}|p{1cm}||p{3cm}|
+p{1cm}|p{1cm}|}
+\toprule
+\multicolumn{7}{|c|}{\cellcolor{gray!30!} 
+\textbf{Μέσο αποτέλεσμα}} \\
+\midrule 
+& \textbf{Συγκολλητή δοκός} & $\mathbf{\overline{n}_{PSM}}$ 
+& $\mathbf{\overline{n}_{meta}}$
+& \textbf{Μειωτήρας ταχύτητας} & $\mathbf{\overline{n}_{PSM}}$ 
+& $\mathbf{\overline{n}_{meta}}$ \\
+\hline
+\textbf{MAEAs, on-line, SMT} & 2.54 & 10000 & 11579
+& 3002.68 & 20000 & 22792 \\
+\textbf{MAEAs, on-line, EASY} & 2.53 & 10000 & 14422
+& 3005.46 & 20000 & 24775 \\
+\textbf{EAs} & 2.59 & 10000 & - & 3004.34 & 20000 & - \\
+\textbf{MAEAs, off-line, SMT} & 3.12 & 388 & 23064 
+& 3006.01 & 151 & 18239 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Σύγκριση μεταξύ των τελικών αποτελεσμάτων}
+\end{table}
+
+Από τον ανώτερο πίνακα διαφαίνεται πως η βελτιστοποίηση με MAEAs 
+με χρήση on-line εκπαιδευμένων RBFs μέσω του EASY είναι η πιο 
+αποδοτική μέθοδος σε προβλήματα ψευδο-μηχανικής χαμηλού 
+υπολογιστικού κόστους.
+\end{enumerate}
+
+
+%---------------
+\vspace{0.5cm}
+
+\begin{itemize}
+\item \textbf{Βελτιστοποίηση μορφής στη NACA 4318}
+\end{itemize}
+
+Η ίδια διαδικασία επαναλαμβάνεται, αυτή τη φορά στη βελτιστοποίηση 
+μορφής μιας δισδιάστατης NACA 4318. Αυτό το πρόβλημα 
+βελτιστοποίησης είναι υψηλού υπολογιστικού κόστους, αφού απαιτείται 
+η επίλυση των εξισώσεων RANS για μόνιμη και συμπιεστή ροή. Για την 
+επίλυση γίνεται χρήση του CFD επιλύτη PUMA που αναπτύχθηκε από τη
+ΜΠΥΡΒ/ΕΜΠ. Η μελέτη επικεντρώνεται στη  βελτιστοποίηση της 
+γεωμετρίας της εν λόγω αεροτομής με αεροδυναμικά κριτήρια. 
+Συγκεκριμένα, μελετάται η βελτιστοποίηση της αεροτομής σε συνθήκες 
+απογείωσης και ευθείας πτήσης, από τις οποίες προέκυψαν τα ακόλουθα
+αποτελέσματα.    
+
+\begin{enumerate}
+\item \textbf{\textit{Βελτιστοποίηση δύο στόχων σε συνθήκες 
+απογείωσης}} 
+
+Στόχοι τις βελτιστοποίησης είναι η μείωση της παραγόμενης 
+οπισθέλκουσας $D$ και αύξηση της παραγόμενης άνωσης σε συνθήκες 
+απογείωσης με ταχύτητα $U=51 m/s$, γωνία πρόσπτωσης $α=10^{ο}$ και 
+συνθήκες αέρα:
+
+\begin{table}[h!]
+\centering
+%\rowcolors{2}{gray!30!}{white!50!gray!10}
+\scalebox{0.85}{%
+\begin{tabular}[c]{ |p{1.5cm}||p{2.2cm}|p{2.2cm}|p{2.2cm}|}
+\toprule
+\multicolumn{4}{|c|}{\cellcolor{gray!30!} 
+\textbf{Ιδιότητες ρευστού σε υψόμετρο h = 0 m}} \\
+\midrule 
+& $\bm{ρ}$ $\mathbf{[kg/m^3]}$ & \textbf{p [bar]} & \textbf{T [K]} 
+\\
+\hline
+\textbf{Αέρας} & 1.225 & 1.01325 & 288 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Ιδιότητες ρευστού σε μηδενικό υψόμετρο}
+\end{table}   
+
+\vspace{-2mm}
+
+Η βελτιστοποίηση επαναλήφθηκε για 3 τιμές RNG. EAs και MAEAs με 
+on-line εκπαίδευση πραγματοποίησαν 400 CFD αξιολογήσεις, ενώ η 
+βελτιστοποίηση με MAEAs off-line εκπαίδευση συνέκλινε μετά από 1000 
+εκτιμήσεις ανά κύκλο. 
+
+\newpage
+%------------------------------------------------------------------
+
+
+\begin{figure}[h!]
+\centering
+\begin{subfigure}[b]{0.45\textwidth}
+\centering
+\caption{RNG2}
+\includegraphics[width=\textwidth]{airfoil_takeoff_MOO_RNG2.pdf}
+\end{subfigure}
+\hfill
+\begin{subfigure}[b]{0.45\textwidth}
+\centering
+\caption{RNG3}
+\includegraphics[width=\textwidth]{airfoil_takeoff_MOO_RNG3.pdf}
+\end{subfigure}   
+\caption{Βελτιστοποίηση της NACA 4318 σε συνθήκες απογείωσης.
+Σύγκριση μεταξύ των μετώπων Pareto 15 μη-κυριαρχούμενων λύσεων
+που προέκυψαν από την εφαρμογή EAs, MAEA με off-line και 
+on-line εκπαιδευμένου KPLS και MAEA με on-line 
+εκπαιδευμένων RBFs μέσω του EASY για 400 CFD αξιολογήσεις} 
+\end{figure}
+
+Ακολουθεί χρήση της μεθόδου δείκτη υπερόγκου για το προσδιορισμό του 
+κυρίαρχου μετώπου Pareto.
+
+\begin{table}[h!]
+\centering
+%\rowcolors{2}{gray!30!}{white!50!gray!10}
+\scalebox{0.85}{%
+\begin{tabular}[c]{ |p{5.3cm}||p{2cm}|p{2cm}|p{2cm}|}
+\toprule
+\multicolumn{4}{|c|}{\cellcolor{gray!30!} 
+\textbf{Δείκτης υπερόγκου} $\mathbf{H(\bm{\mathcal{F})}}$} \\
+\midrule 
+& \textbf{RNG1} & \textbf{RNG2} & \textbf{RNG3} 
+\\
+\hline
+\textbf{MAEAs, on-line, SMT} & 274.588 & 222.513 
+& 224.786 \\
+\textbf{MAEAs, on-line, EASY} & 257.987 & 206.800 
+& 211.937 \\
+\textbf{MAEAs, off-line, SMT} & 252.866 & 213.701 
+& 216.461 \\
+\textbf{EAs} & 257.512 & 200.114 & 204.289 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Βελτιστοποίηση της NACA 4318 σε συνθήκες απογείωσης. 
+Σύγκριση των δεικτών υπερόγκου των μετώπων Pareto που σχηματίστηκαν 
+από τη χρήση διάφορων μεθόδων βελτιστοποίησης}
+\end{table} 
+
+
+\item \textbf{\textit{Βελτιστοποίηση ενός στόχου σε συνθήκες 
+απογείωσης}} 
+
+Στη δεύτερη περίπτωση ως στόχος της βελτιστοποίησης τίθεται η 
+μεγιστοποίηση της άνωσης σε συνθήκες απογείωσης με ένα περιορισμό 
+που αφορά την αύξηση της οπισθέλκουσας της αρχικής αεροτομής 
+$D_{bsl} \!= \!15.53$ N:\\[-2mm]
+\begin{equation} 
+\begin{split}
+max \hspace{2mm} & f(\vec{β}) = L
+\\[0.2cm] 
+\text{subject to} \hspace{2mm} & c_{1}(\vec{β}) = 
+D - 1.08D_{bsl} \leq 0
+\end{split}
+\end{equation}
+
+\begin{table}[h!]
+\centering
+%\rowcolors{2}{gray!30!}{white!50!gray!10}
+\scalebox{0.8}{%
+\begin{tabular}[c]{ |p{5.2cm}||p{2.6cm}|p{1.3cm}|p{1.3cm}|}
+\toprule
+\multicolumn{4}{|c|}{\cellcolor{gray!30!}
+\textbf{Βελτιστοποίηση της NACA 4318 σε συνθήκες απογείωσης}} \\
+\midrule 
+& \textbf{Μέσο} $\vec{\mathbf{f}}$ & $\mathbf{\overline{n}_{PSM}}$ 
+& $\mathbf{\overline{n}_{meta}}$ \\
+\hline
+\textbf{MAEAs, on-line, SMT} & 1222.33 & 400 & 2988 \\
+\textbf{MAEAs, on-line, EASY} & 1221.90 & 400 & 4000 \\
+\textbf{MAEAs, off-line, SMT} & 11221.27 & 81 & 1000 \\
+\textbf{EAs} & 1211.54 & 400 & - \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Σύγκριση μεταξύ των εφαρμοσμένων μεθόδων βελτιστοποίησης}
+\end{table}
+
+\newpage
+%-----------------------------------------------------------------
+
+
+\begin{figure}[h!]
+\centering
+	\begin{subfigure}[b]{0.44\textwidth}
+	\centering
+	\caption{MAEAs, on-line, SMT, 
+	\\  $L \!= \!1222.52$ N and $D \!= \!16.54$ N}
+	\includegraphics[width=\textwidth]{takeoff_SOO_SMT} 
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.44\textwidth}
+	\centering
+	\caption{MAEAs, on-line, EASY, 
+	\\ $L \!= \!1222.06$ N and $D \!= \!16.44$ N}
+	\includegraphics[width=\textwidth, scale=1]{takeoff_SOO_EASY}   
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.44\textwidth}
+	\centering
+	\caption{MAEAs, off-line, SMT, 
+	\\ $L \!= \!1221.02$ N and $D \!= \!16.29$ N}
+	\includegraphics[width=\textwidth, scale=1]{takeoff_SOO_offline} 
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.44\textwidth}
+	\centering
+	\caption{EAs, $L \!= \!1211.35$ N and $D \!= \!16.25$ N}
+	\includegraphics[width=\textwidth, scale=1]{takeoff_SOO_EAs}   
+	\end{subfigure}
+\caption{Βελτιστοποίηση της NACA 4318 σε συνθήκες απογείωσης με 
+RNG3. Σύγκριση μεταξύ των βέλτιστων αποτελεσμάτων.} 
+\end{figure}
+
+\vspace{-4mm}
+
+\begin{figure}[h!]
+\centering
+	\begin{subfigure}[b]{0.49\textwidth}
+	\centering
+	\caption{Αρχική γεωμετρία}
+	\includegraphics[width=\textwidth, height=0.64\textwidth, 
+	scale=1]{takeoff_baseline_pressure} 
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.49\textwidth}
+	\centering
+	\caption{Βελτιστοποιημένη γεωμετρία}
+	\includegraphics[width=\textwidth, height=0.64\textwidth, 
+	scale=1]{takeoff_SOO_offline_pressure}   
+	\end{subfigure}
+\caption{Σύγκριση μεταξύ του πεδίου πίεσης αρχικής και της 
+βελτιστοποιημένης γεωμετρίας με χρήση MAEA με off-line εκπαίδευση} 
+\end{figure}
+
+%-------------------
+\item \textbf{\textit{Βελτιστοποίηση ενός στόχου σε συνθήκες 
+ευθείας πτήσης}} 
+
+Στη τελευταία περίπτωση ως στόχος της βελτιστοποίησης τίθεται η 
+ελαχιστοποίηση της οπισθέλκουσας σε συνθήκες ευθείας πτήσης με ένα 
+περιορισμό που αφορά την μείωση της άνωσης της αρχικής αεροτομής 
+$L_{bsl} \!= \!1123.81$ N:\\[-2mm]
+\begin{equation}
+\begin{split}
+min \hspace{2mm} & f(\vec{β}) = D
+\\[0.1cm] 
+\text{subject to} \hspace{2mm} & c_{1}(\vec{β}) = 
+L - 0.92L_{bsl} \geq 0
+\end{split}
+\end{equation}
+\\[-2mm]
+H βελτιστοποίηση πραγματοποιείται σε συνθήκες ευθείας πτήσης με 
+ταχύτητα $U=206.64 m/s$, γωνία πρόσπτωσης $α=2^{ο}$ και 
+συνθήκες αέρα:
+\begin{table}[h!]
+\centering
+%\rowcolors{2}{gray!30!}{white!50!gray!10}
+\scalebox{0.83}{%
+\begin{tabular}[c]{ |p{1.5cm}||p{2.2cm}|p{2.2cm}|p{2.2cm}|}
+\toprule
+\multicolumn{4}{|c|}{\cellcolor{gray!30!} 
+\textbf{Fluid properties at h = 11000 m}} \\
+\midrule 
+& $\bm{ρ}$ $\mathbf{[kg/m^3]}$ & \textbf{p [bar]} & \textbf{T [K]} 
+\\
+\hline
+\textbf{Air} & 0.364805 & 0.227 & 216.8 \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Air properties at cruise height}
+\end{table} 
+
+\begin{table}[h!]
+\centering
+%\rowcolors{2}{gray!30!}{white!50!gray!10}
+\scalebox{0.8}{%
+\begin{tabular}[c]{ |p{5.5cm}||p{2.6cm}|p{1.3cm}|p{1.3cm}|}
+\toprule
+\multicolumn{4}{|c|}{\cellcolor{gray!30!}
+\textbf{Βελτιστοποίηση της NACA 4318 σε συνθήκες ευθείας πτήσης}}\\
+\midrule 
+& \textbf{Μέσο} $\vec{\mathbf{f}}$ & $\mathbf{\overline{n}_{PSM}}$ 
+& $\mathbf{\overline{n}_{meta}}$ \\
+\hline
+\textbf{MAEAs, on-line, SMT} & 148.86 & 400 & 2988 \\
+\textbf{MAEAs, on-line, EASY} & 149.57 & 400 & 4000 \\
+\textbf{MAEAs, off-line, SMT} & 149.60 & 87 & 2000 \\
+\textbf{EAs} & 154.63 & 400 & - \\
+\bottomrule
+\end{tabular}%
+}
+\caption{Σύγκριση μεταξύ των εφαρμοσμένων μεθόδων βελτιστοποίησης}
+\end{table}
+
+\newpage
+%----------------------------------------------------------------
+
+
+\begin{figure}[h!]
+\centering
+	\begin{subfigure}[b]{0.44\textwidth}
+	\centering
+	\caption{MAEAs, on-line, SMT, 
+	\\  $D \!= \!148.87$ N and $D \!= \!1373.12$ N}
+	\includegraphics[width=\textwidth, scale=1]{cruise_SMT} 
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.44\textwidth}
+	\centering
+	\caption{MAEAs, on-line, EASY, 
+	\\ $D \!= \!149.24$ N and $D \!= \!1383.62$ N}
+	\includegraphics[width=\textwidth, scale=1]{cruise_EASY}   
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.44\textwidth}
+	\centering
+	\caption{MAEAs, off-line, SMT, 
+	\\ $D \!= \!150.06$ N and $L \!= \!1367.56$ N}
+	\includegraphics[width=\textwidth, scale=1]{cruise_offline} 
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.44\textwidth}
+	\centering
+	\caption{EAs, $D \!= \!155.25$ N and $L \!= \!1429.83 N$}
+	\includegraphics[width=\textwidth, scale=1]{cruise_EAs}   
+	\end{subfigure}
+\caption{Βελτιστοποίηση της NACA 4318 σε συνθήκες ευθείας πτήσης με 
+RNG3. Σύγκριση μεταξύ των βέλτιστων αποτελεσμάτων.} 
+\end{figure}
+
+\end{enumerate}
+
+\vspace{-4mm}
+
+\begin{figure}[h!]
+\centering
+	\begin{subfigure}[b]{0.49\textwidth}
+	\centering
+	\caption{Αρχική γεωμετρία}
+	\includegraphics[width=\textwidth, height=0.64\textwidth, 
+	scale=1]{cruise_baseline_Mach} 
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.49\textwidth}
+	\centering
+	\caption{Βελτιστοποιημένη γεωμετρία}
+	\includegraphics[width=\textwidth, height=0.64\textwidth, 
+	scale=1]{cruise_offline_Mach}   
+	\end{subfigure}
+\caption{Σύγκριση μεταξύ του πεδίου Mach αρχικής και της 
+βελτιστοποιημένης γεωμετρίας με χρήση MAEA με off-line εκπαίδευση} 
+\end{figure}
+
+
+\newpage
+%-----------------------------------------------------------------
+
+
+\begin{itemize}
+\item \textbf{Σύνοψη-Συμπεράσματα}
+\end{itemize}
+
+Σε αυτή διπλωματική εργασία μελετήθηκε η βέλτιστη χρήση 
+εξελικτικών αλγορίθμων υποβοηθούμενων από μεταμοντέλα σε εφαρμογές 
+χαμηλού (εφαρμογές ψευδο-βελτιστοποίησης) και υψηλού 
+(βελτιστοποίηση αεροτομής με αεροδυναμικά χαρακτηριστικά) 
+υπολογιστικού κόστους. Βρέθηκε ότι στην πρώτη περίπτωση, η χρήση 
+MAEAs με on-line εκπαιδευμένων RBFs που διαθέτει ο EASY έχει το 
+μικρότερο αντίκτυπο στο υπολογιστικό κόστος σε συνδυασμό με γρήγορη 
+σύγκλιση της βελτιστοποίησης. Η επιλογή αυτή βασίζεται τόσο στην 
+κακή εκπαίδευση (off-line) που συναντάται σε προβλήματα πολλών 
+στόχων, όσο και στην επιβάρυνση της βελτιστοποίησης λόγω της χρήσης 
+της αργής Python.
+
+Στην δεύτερη περίπτωση που 
+απαιτείται η επίλυση των RANS εξισώσεων και το υπολογιστικό κόστος 
+είναι υψηλό, η εφαρμογή των ΜΑΕΑ με χρήση off-line και 
+on-line εκπαιδευμένων μεταμοντέλων μέσω του SMT οδηγεί σε 
+$60-80 \%$ μείωση του υπολογιστικού κόστους. Συνεπώς, σε
+αεροδυναμικές εφαρμογές υψηλού υπολογιστικού κόστους και λίγων 
+περιορισμών ενδείκνυται η χρήση εξωτερικών μεταμοντέλων.
+
+Με βάση τις εφαρμογές που εξετάστηκαν σε αυτή τη διπλωματική 
+εργασία, προκύπτει η διαφαινόμενη υπεροχή του KPLS μεταξύ τόσο των 
+εξωτερικών όσο και των εσωτερικών μεταμοντέλων που χρησιμοποιήθηκαν. 
+Ακόμα, η βελτιστοποίηση με χρήση MAEAs με on-line εκπαίδευση 
+διαφαίνεται ως η επικρατέστερη μέθοδος βελτιστοποίησης.
+
+\newpage
+%----------------------------------------------------------------
+
+\clearpage
+\textbf{Βιβλιογραφία}
+
+\begin{enumerate}
+\bibitem{preprint_SMT_app}
+M.A. Bouhlel, J.T. Hwang, N. Bartoli, R. Lafage, 
+J. Morlier, and J.R.R.A. Martins. A Python surrogate 
+modeling framework with derivatives. \textit{Advances 
+in Engineering Software}, 135, 2019.
+
+\bibitem{EASY_app}
+EASY - The Evolutionary Algorithms SYstem Home, 2012. 
+Retrieved from \url{http://velos0.ltt.mech.ntua.gr/EASY}
+
+\bibitem{RBF_app}
+M.J.D. Powell. \textit{The Theory of Radial Basis Function 
+Approximation}. Oxford University Press, pp. 105-210, 1992.
+
+\bibitem{Kriging_app}
+A. Keane, A. Forrester, and A. Sóbester. 
+\textit{Engineering Design via Surrogate Modelling: A 
+Practical Guide}. Wiley, 1st edition, 2008.
+
+\bibitem{LCPE_app}
+M.K. Karakasis and K.C. Giannakoglou. On the use of 
+metamodel-assisted, multi-objective evolutionary algorithms. 
+\textit{Engineering Optimization}, 38(8):941–957, 2006.
+
+\bibitem{KPLS_app}
+M.A. Bouhlel, N. Bartoli, A. Otsmane, and J. Morlier. 
+Improving kriging surrogates of high-dimensional design 
+models by Partial Least Squares dimension reduction. 
+\textit{Structural and Multidisciplinary Optimization}, 
+53(5): 935-952, 2016.
+
+\bibitem{KPLSK_app}
+M.A. Bouhlel, N. Bartoli, J. Morlier, and A. Otsmane. An 
+improved approach for estimating the hyperparameters of 
+the kriging model for high-dimensional problems through 
+the partial least squares method. \textit{Mathematical 
+Problems in Engineering}, 2016.
+
+\bibitem{PUMA_app}
+K. Tsiakas. Development of shape parameterization techniques, a 
+flow solver and its adjoint, for optimization on GPUs. 
+Turbomachinery and external aero-dynamics applications. PhD thesis, 
+Laboratory of Thermal Turbomachines, NTUA, Athens, 2019.
+
+\bibitem{EAs_app} Κ. Χ. Γιαννάκογλου. Μέθοδοι Βελτιστοποίησης 
+στην Αεροδυναμική. Πανεπιστημιακές Εκδόσεις Ε.Μ.Π., 
+Αθήνα, σελίδες 125-130, 2006.
+
+\bibitem{Random_app}
+R. Mead, S. Gilmour, and  A. Mead. \textit{Statistical 
+principles for the design of experiments}. Cambridge 
+University Press, 1st ed., pp. 233-271, 2012.
+
+\bibitem{LHS_app}
+I. Ronald. Latin Hypercube Sampling. \textit{ResearchGate}, 
+January 1999.
+
+\bibitem{maximin_app}
+M. Johnson, L. Moore and D. Ylvisaker. Minimax and maximin 
+distance designs, \textit{Journal of Statistical Planning and 
+Inference}, 26(2): 131-148, 1990.
+ 
+\bibitem{max_entropy_app}
+M.C. Shewry and H.P. Wynn. Maximum entropy sampling. 
+\textit{Journal of Applied Statistics}, 14(2): 165-170, 1987.
+
+%\bibitem{max_entrop2}
+%J.R. Koehler and  A.B. Owen. Computer experiments. In  S. 
+%Ghosh, and  C.R. Rao, \textit{Handbook of Statistics}, vol. 
+%13, Elsevier Science, pages 261-308, 1996.
+
+\bibitem{ESE_app}
+R. Jin , W. Chen, and A. Sudjianto. An efficient 
+algorithm for constructing optimal design of computer 
+experiments. \textit{Journal of Statistical Planning and 
+Inference}, 134(1): 268-287, 2005.
+
+\bibitem{Factorial_app}
+D.C. Montgomery. \textit{Design and Analysis of Experiments}. 
+Wiley, 9th edition, pp. 179-229, 2017.
+
+\bibitem{welded beam_app}
+T. Ray and K. M. Liew. A Swarm Metaphor for 
+Multiobjective Design Optimization. \textit{Engineering 
+Optimization} 34: 141-153, 2002.
+
+\bibitem{speed reducer_app}
+S.S. Rao. \textit{Engineering Optimization: Theory and 
+Practice}. Wiley, 5th ed., pp. 434-435, 2020.
+
+\end{enumerate}
+
+
+\end{document} 
+ 
+ 

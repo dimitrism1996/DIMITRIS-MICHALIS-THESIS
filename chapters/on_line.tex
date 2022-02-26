@@ -1,0 +1,377 @@
+On-line trained surrogate models are built in each 
+generation of the evolution and hence this MAEAs method is 
+described as dynamic. The most common approach is one 
+that involves the implementation of a Low-Cost 
+Pre-Evaluation (LCPE) process. LCPE is responsible for 
+the selection of promising individuals via the 
+implementation of local or global metamodels. The former 
+are however more widely used, since they tend to 
+approximate complex objectives function more effectively. 
+MAEAs with metamodels trained on-line via LCPE phase can
+subsequently decomposed in the following discrete steps:   
+ 
+\begin{ONL}
+\item \textbf{Implementation of EAs} \\
+The initialization of LCPE phase requires the 
+implementation of conventional EAs for a number of 
+generations. Each untried individual $\vec{β} \!\in \!P_{λ}^{g}$ is 
+evaluated on the PSM and subsequently archived in 
+the DB. Once a user-defined minimum number of individuals 
+has been stored in the DB, LCPE\cite{LCPE} phase initiates.
+
+\item \textbf{Low-cost Pre-evaluation} \\
+LCPE phase initiates by training on the fly a local 
+surrogate model for each untried individual $\vec{β} \in 
+P_{λ}^{g}$. The training of each metamodel in SOO problems 
+requires the selection of an appropriate set of training 
+patterns from the vicinity of each individual $\vec{β}$. 
+In MOO problems more sophisticated algorithms 
+are required. Such a method is developed by PCOpt/NTUA and is 
+called Training Pattern Selection (TPS)\cite{TPS}. Using 
+the trained local metamodels, the objective function value 
+of each offspring s subsequently predicted and denoted by 
+$\hat{\vec{f}}(\vec{β}), \forall \vec{β}\in P_{λ}^{g}$.
+
+\item \textbf{Computation of fitness function} \\
+This step is identical to step EAs-3. Each candidate 
+solution $\vec{β} \!\in \!P_{λ}^{g}$,  is assigned a scalar 
+value. Depending on the process implemented to evaluate 
+each candidate solution, i.e. PSM or LCPE using local 
+metamodels, the fitness function is either exactly 
+calculated ($Φ(\vec{β})$) or predicted ($\widehat{Φ}
+(\vec{β})$), respectively.
+
+\begin{equation}
+Φ(\vec{β}_{i}) = Φ(\vec{f}(\vec{β}_{i}), 
+\{ \vec{f}(\vec{z}) \hspace{2mm} \vert \hspace{2mm}
+\vec{z} \in P_{λ}^g \setminus \{\vec{β}_{i}\} \}) \in 
+\mathbb{R} \hspace{3mm} ,\text{for} \hspace{2mm} i=1,λ
+\end{equation}
+or
+\begin{equation}
+\widehat{Φ}(\vec{β}_{i}) = \widehat{Φ}(\hat{\vec{f}}
+(\vec{β}_{i}), \{ \hat{\vec{f}}(\vec{z}) \hspace{2mm} 
+\vert \hspace{2mm}
+\vec{z} \in P_{λ}^g \setminus \{\vec{β}_{i}\} \}) \in 
+\mathbb{R} \hspace{3mm} ,\text{for} \hspace{2mm} i=1,λ
+\end{equation}
+
+\newpage
+%--------------------------------------------------------
+
+\item  \textbf{Identification of elites}\\
+The values of the fitness function assigned to each 
+candidate solution are used to update the temporary set 
+of elites $P_{e}$. In SOO problems $Φ(\vec{β}) \! \equiv 
+\! f(\vec{β})$, $\widehat{Φ}(\vec{β}) \equiv 
+\hat{f}(\vec{β})$ and there is only one optimal 
+solution $λ_{e}\! = \! 1$. In MOO problems the best 
+$λ_{e} \! < \! λ$ offspring are selected to populate the 
+$P_{e}$ set. In the latter category due to the large 
+number of data the fitness function values are assigned 
+via the implementation of the simplest sorting algorithm, 
+e.g. NSGA\cite{NSGA} or SPEA\cite{SPEA}, or via a simple 
+ranking of non-dominated Pareto fronts. The final $P_{e}$ 
+set is formed as such:
+\begin{equation}
+P_{e} \triangleq \lbrace \vec{β}_{i} \!: \widehat{Φ}
+(\vec{β}_{i}) < \widehat{Φ}(\vec{z}), \vec{z} \in 
+P_{λ}^{g} \setminus P_{e} \rbrace
+\hspace{3mm} ,\text{for} \hspace{2mm} i=1,λ_{e}
+\end{equation}
+
+The process of populating the $P_{e}$ set continues until:
+\begin{equation}
+ λ_{e,min} < λ_{e} < λ_{e,max} 
+\end{equation}  
+
+where $λ_{e,min}, λ_{e,max}$ are user-defined lower and 
+upper bounds of the number of elites $λ_{e}$, 
+respectively.
+
+\item \textbf{CFD evaluation}\\
+Subsequently, $λ_{e}$ elite candidate solutions contained 
+in the $P_{e}$ set are re-evaluated on the PSM and are stored in 
+the DB. Depending on the deviation between metamodel and 
+psm evaluated outcome, denoted by $ε_{P_{e}}$, either the 
+evolution continues or new elites are selected (step 
+ONL-4) and re-evaluated (step ONL-5). This criterion can
+be expressed mathematically as such:
+\begin{equation}
+ε_{P_{e}} = \left| \dfrac{\vec{f}(\vec{β}) - 
+\hat{\vec{f}}(\vec{β})}{\vec{f}(\vec{β})} \ \right| < 
+ε_{λ} \hspace{3mm} ,\forall \vec{β} \in P_{e} 
+\end{equation}
+
+where $ε_{λ}$ a user-defined value upon which the 
+criterion is satisfied. 
+
+\item \textbf{Elitism}\\
+The temporary set $P_{e}$ is used to update the population of 
+the current generation $P_{α}^{g}$. The process of elitism
+subsequently commences and leads to the formation of 
+$P_{α}^{g+1}$ set. This step is identical to step EAs-5.   
+
+\item \textbf{Crossover and mutation}\\
+Crossover and mutation operators are applied to form the
+set $P_{λ}^{g+1}$, similarly to step EAs-6. 
+
+\item \textbf{Termination}\\
+Once the process of implementing evolution operators is 
+complete, the convergence of the on-line training process 
+is tested. If a user-defined number of generations
+has been formed the process terminates, alternatively, 
+the next generation initiates by setting $g = g + 1$. If a
+user-defined number of idle generations $n_{idle}$ has been 
+performed using metamodels in LCPE phase, then plain EAs are 
+utilized and the counter of idle LCPE generations $c_{idle}$ is 
+reset to zero, as shown in figure \ref{fig:online_flowchart}. 
+\end{ONL}
+
+\newpage
+%-------------------------------------------------------
+
+\begin{figure}[h!]
+\centering
+\begin{center}
+\begin{adjustbox}{width=1.0\textwidth,height= 
+0.92\textheight,keepaspectratio}
+\begin{tikzpicture}[node distance=1.6cm,
+    every node/.style={fill=white, font=\sffamily}, 
+    align=center]
+    
+\node (start) [startstop] {Start};
+
+\node (pro2) [process, below of=start]
+{$g = 0$ \\ Initialize $P_{λ}^{g}$};
+
+\node (dec2) [decision, below of=pro2, yshift=-1.4cm] 
+{$c_{idle} \leq n_{idle}$ \\ or adequate \\ data in DB };
+
+\node (pro3) [process, below of=dec2, yshift=-1.7cm] 
+{PSM evaluation \\ of $P_{λ}^{g}$};
+
+\node (DB) [process, left of=pro3, xshift=-2cm] 
+{DB};
+
+\node (DB2) [process, right of=pro3, xshift=1cm] 
+{DB};
+
+%--------------------------------------------------
+%-------LCPE phase-------------------
+\node (LCPE1) [process, left of=dec2, xshift=-2cm] 
+{$i = 1$};
+
+\node (LCPE2) [process, left of=DB, xshift=-1.5cm] 
+{Train local \\ metamodel};
+
+\node (LCPE3) [process, below of=LCPE2, yshift=0cm] 
+{Compute $\hat{\vec{f}}(\vec{β})$};
+
+\node (dec3) [decision, below of=LCPE3, yshift=-0.5cm] 
+{$i < λ$};
+
+\node (LCPE4) [process, below of=dec3, yshift=-0.7cm] 
+{Assign $\widehat{Φ}(\vec{β})$};
+
+\node (LCPE5) [process, below of=LCPE4, yshift=0cm] 
+{Select $λ_{e} \rightarrow P_{e}$};
+
+\node (LCPE6) [process, below of=LCPE5, yshift=0cm] 
+{PSM evaluation of $P_{e} \rightarrow \vec{f}(\vec{β})$};
+
+\node (dec4) [decision, below of=LCPE6, yshift=-2cm] 
+{$ε_{P_{e}} < ε_{λ}$ \\ 
+$λ_{e,min} \!< \!λ_{e} \!< \!λ_{e,max}$};
+
+\node (LCPE7) [process, below of=dec4, yshift=-2.2cm] 
+{Update elites $\rightarrow$ $P_{α}^{g+1}$};
+
+\node (LCPE9) [process, below of=LCPE7, yshift=-0.2cm] 
+{Parent \\ selection $\rightarrow$ $P_{μ}^{g+1}$};
+
+\node (LCPE8) [process, below of=LCPE9, yshift=-0.2cm] 
+{Crossover and \\ mutation $\rightarrow$ $P_{λ}^{g+1}$};
+
+
+%-------------------------------------------------------
+
+\node (pro4) [process, below of=pro3, yshift=-0.0cm] 
+{Assign $Φ(\vec{β})$};
+
+\node (pro5) [process, below of=pro4] 
+{Update elites $\rightarrow \!P_{α}^{g+1}$};
+
+\node (pro6) [process, below of=pro5, yshift=-0.2cm]
+{Parent \\ selection $\rightarrow$ $P_{μ}^{g+1}$};
+
+\node (pro7) [process, below of=pro6, yshift=-0.1cm] 
+{Crossover and \\ mutation $\rightarrow$ $P_{λ}^{g+1}$};
+ 
+\node (dec1) [decision, right of=LCPE8, xshift=5cm] 
+{Termination \\ criteria};
+\node (stop) [startstop, above of=dec1, yshift=1.5cm]
+{Stop};
+
+\draw [arrow] (start) -- (pro2);
+\draw [arrow] (pro2) -- (dec2);
+\draw [arrow] (dec2) -- (LCPE1);
+\draw [arrow] (dec2) -- (pro3);
+\draw [arrow] (pro3) -- (DB2);
+\draw [arrow] (DB) -- (LCPE2);
+\draw [arrow] (LCPE2) -- (LCPE3);
+\draw [arrow] (LCPE3) -- (dec3);
+\draw [arrow] (dec3) -- (LCPE4);
+\draw [arrow] (LCPE4) -- (LCPE5);
+\draw [arrow] (LCPE5) -- (LCPE6);
+\draw [arrow] (LCPE6) -- (dec4);
+\draw [arrow] (dec4) -- (LCPE7);
+\draw [arrow] (LCPE7) -- (LCPE9);
+\draw [arrow] (LCPE9) -- (LCPE8);
+\draw [arrow] (LCPE8) -- (dec1);
+\draw [arrow] (pro3) -- (pro4);
+\draw [arrow] (pro4) -- (pro5);
+\draw [arrow] (pro5) -- (pro6);
+\draw [arrow] (pro6) -- (pro7);
+
+
+%----------arrow for pro7----------------
+\draw [->][arrow] (pro7.south) -- ++(0,-2) -- ++(4.1,0);
+
+%----------arrow for dec1----------------
+\draw [arrow] (dec1) -- node[anchor=east, xshift=-0.1cm] 
+{yes} (stop);
+\draw [->][arrow] (dec1.east) -- ++(2.5,0) -- ++(0,23.5) 
+-- ++(-2,0) -- node[xshift=2.1cm,yshift=-6cm, text 
+width=2.5cm]{$g = g +1 $}(dec2.east);
+\draw (2.5,-27.5) node[anchor=north]{no};
+
+%-----------arrow for dec2--------------
+\draw (0.5,-6.7) node[anchor=north]{no};
+\draw (-2.2,-4) node[anchor=north]{yes};
+
+%----------arrow for LCPE1-------------
+\draw [arrow] (LCPE1) -- ++(-3.1,0) -- (LCPE2.north);
+
+%----------arrow for dec3----------------
+\draw (-6.1,-12.7) node[anchor=north]{no};
+\draw [->][arrow] (dec3.west) -- ++(-2,0) -- ++(0,1) 
+-- ++(0,2.7) -- node[xshift=-1cm,yshift=-2cm, text 
+width=2.5cm]{$i = i +1 $}(LCPE2.west);
+\draw (-8.3,-11) node[anchor=north]{yes};
+
+%-----------arrow for LCPE6-------------
+\draw [arrow] (LCPE6) -- ++(3.1,0) -- (DB.south);
+
+%-----------arrow for dec4------------
+\draw [arrow] (dec4) -- ++(-3.6,0) -- ++(0,5.2) --
+(LCPE5.west);
+\draw (-7.2,-23.4) node[anchor=north]{yes};
+\draw (-9.6,-20.2) node[anchor=north]{no};
+
+\end{tikzpicture}
+\end{adjustbox}
+\end{center}
+\caption{Flowchart of MAEAs using on-line trained 
+metamodels}
+\label{fig:online_flowchart}
+\end{figure}
+
+
+\newpage
+%------------------------------------------------------
+
+\section{Communication between EASY and SMT in MAEAs with on-line training}
+The optimization based on MAEAs via the use of 
+EASY\cite{EASY} software is primarily focused on training 
+metamodels on-line and therefore a number of metamodels 
+are already archived in the database of EASY. In order to
+provide EASY with external metamodels trained on SMT 
+software, the following Python scripts must be deployed:
+
+\begin{enumerate}
+
+\item \textbf{ Evaluation of offspring using the exact 
+model (Code 1)} \\
+This script contains the exact PSM and is responsible for 
+computing the exact objective function vector $\vec{f}(\vec{β}), 
+\forall \vec{β} \in P_{λ}^{g}$. Each one of those candidate 
+solutions is imported from the file \textit{task.dat}. The script 
+is subsequently converted to an executable process, called 
+\textit{evaluation.exe}, and executed via \textit{task.bat} batch 
+file, which has the following structure:
+
+\begin{lstlisting}[language = command.com, caption = Structure of 
+\textit{task.bat} file that initiates the exact evaluation of 
+offspring]
+@echo off
+erase results.dat 
+evaluation.exe > nul 
+postprocessor.exe > nul
+\end{lstlisting}
+
+\item \textbf{Training of metamodel (Code 2)} \\
+LCPE phase initiates by training a local metamodel for 
+each individual $\vec{β} \in P_{λ}^{g}$. Both the $n_{t}$ 
+training patterns $\mathbf{X}$ and their corresponding exact 
+model values $\mathbf{F}(\vec{χ})$ are imported from a plain 
+ASCII text file, which is called \textit{meta.db} and is 
+created by EASY. Code 2 is converted to \textit{train.exe} 
+and executed via a user-created batch file 
+\textit{meta\_train.bat} that has the following structure:
+
+\begin{lstlisting}[language = command.com, caption =Structure of 
+\textit{meta\_train.bat} file that initiates training of the 
+metamodel]
+@echo off
+train.exe > nul 
+\end{lstlisting}
+
+\item \textbf{Evaluation of offspring using the metamodel 
+(Code 3)} \\
+Code 3 utilises each local metamodel, which is built 
+in the vicinity of the $i_{th}$ individual $\vec{β}_{i} \!\in 
+\!P_{λ}^{g}$, in order to produce the evaluation 
+$\hat{\vec{f}}(\vec{β}_{i})$. Each individual is 
+contained in a plain ASCII text file \textit{meta.dat}, 
+which is structured similarly to \textit{task.dat}. 
+Consequently, after converting the script to an executable 
+\textit{prediction.exe} Code 3 is executed iteratively
+for $λ$ offspring via \textit{meta\_use.bat} batch file, 
+which has the following structure: 
+
+\begin{lstlisting}[language = command.com, caption = Structure of 
+\textit{meta\_use.bat} file that initiates the evaluation of some 
+candidate solution $\vec{β} \!\in \! P_{λ}^{g}$ based on its 
+personalised local metamodel]
+@echo off
+erase results.dat 
+prediction.exe > nul 
+postprocessor.exe > nul
+\end{lstlisting}
+
+
+\newpage
+%--------------------------------------------------------
+
+\item \textbf{Objectives and constraints (Code 4)} \\
+Code 4, which is called \textit{postprocessor.exe}, is executed 
+alternately via \textit{task.bat} and \textit{meta\_use.bat} 
+batch files in order to provide EASY with the exact $\vec{f}
+(\vec{β})$ or predicted \scalebox{0.86}{%
+$\hat{\vec{f}}(\vec{β})$ } objective function value of each 
+individual $\vec{β} \in P_{λ}^{g}$, respectively. EASY expects to 
+read this value, or values if there are more than one objective, 
+in \textit{task.res} file. Any constraint $\vec{c}(\vec{β})$ is 
+subsequently written in a \textit{task.cns} file.  
+
+\end{enumerate}
+
+In EASY, the MAEA-based on-line construction process consists of 
+the same fundamental steps, i.e. evaluation based on the PSM, 
+training of the surrogate model and prediction based on the trained 
+model, but no additional user-constructed scripts are needed to 
+utilize the built-in metamodels of EASY, in contrast to SMT.   
+ 
+\newpage
+%------------------------------------------------------------------

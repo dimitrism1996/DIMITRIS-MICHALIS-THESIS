@@ -1,0 +1,546 @@
+
+Optimization problems arise in every ripple of the 
+scientific spectrum, from economics to engineering. The 
+art of mimicking nature's ability to select the optimal 
+candidate solution from a larger population has 
+captivated the entire scientific field for centuries and, 
+thus, the Evolutionary Algorithms (EAs) were created. EAs 
+are metaheuristic population-based search methods and 
+are inspired by Darwinian evolution. They fall 
+under the greater category of stochastic optimization 
+and do not require the computation of derivatives, unlike 
+the deterministic or gradient-based methods, which allows 
+them to calculate the global minimum more efficiently 
+regardless of the continuity or the differentiability 
+of the objective function. Moreover, stochastic methods 
+and therefore EAs, can be used with great success in both 
+single-objective (SOO) and multi-objective optimization 
+(MOO). The latter is implemented uniquely via stochastic 
+methods with the computation of the Pareto front, which  
+serves as an optical representation of non-dominated 
+candidate solutions.    
+
+The merit of EAs lies in the ability to effectively and 
+effortlessly accommodate the problem-specific evaluation 
+software, e.g. Computational Fluid Dynamics (CFD). 
+However, such software is commonly expensive in terms of 
+computational cost and thus the optimization time is severely 
+prolonged. In an attempt to reduce the wall clock time of the 
+optimization the use of surrogate models, or metamodels, is 
+introduced. Metamodels approximate, as accurately as possible, 
+the initial evaluation model/objective function by using a 
+data-driven approach, which is based on statistical analysis 
+of the observed data. They tend to have considerably lower 
+computational cost, although generally they lack in accuracy. 
+The introduction of metamodels results in Metamodel-Assisted EAs 
+(MAEAs)\cite{MAEA}. 
+
+In order for the surrogate models to be utilized by  
+the evaluation software, they must first be trained to 
+fit the problem-specific evaluation model and are, therefore, 
+classified in two main categories accordingly. Off-line trained 
+surrogate models are built and updated statically, i.e. 
+separately from the evolution. The termination or continuation 
+of the optimization depends on a process which assesses the 
+deviation between the optimal candidate solution obtained by 
+the surrogate model and the one obtained using the exact 
+problem-specific model (PSM). The necessary patterns for the 
+training of this global model are collected via the use of various 
+Design of Experiments (DoE)\cite{DOE} schemes, e.g. Random 
+\cite{Random}, Factorial \cite{Factorial, Fractional Factorial, 
+Full_Factorial2} and Latin Hypercube \cite{Latin Hypercube,LHS}. 
+
+On the other hand, on-line trained surrogate models are built 
+dynamically, i.e. both metamodels and the exact PSM are implemented 
+in the entirety of the EA population during the evolution in a well 
+coordinated scheme, which results in the training of a separate 
+metamodel for each individual to be evaluated. Responsible for the 
+selection of promising individuals is the surrogate model, either 
+global or local, via a Low-Cost Pre-Evaluation (LCPE)
+\cite{LCPE} process that determines which 
+individuals are fit for exact reevaluation using the costly 
+CFD evaluation software. The training process ceases when a 
+user-defined number of evaluations has been performed. In this 
+thesis, optimization via both MAEA methods, i.e. off-line and 
+on-line, is facilitated by  EASY (Evolutionary Algorithm 
+SYstem)\cite{EASY} that is developed by the Parallel CFD \& 
+Optimization Unit of NTUA (PCOpt/NTUA). 
+
+The effectiveness of both methods, i.e. on-line and off-line, 
+depends heavily on the efficacy of both the selected surrogate 
+model and the training process, i.e. complexity of the process, 
+quality and adequacy of the training data. Therefore, selected 
+metamodels will be evaluated based on various criteria, such 
+as goodness of fit, estimated computational cost, complexity 
+of training and overall robustness. These criteria will 
+be implemented individually in a plethora of surrogate 
+models, namely Radial Basis Functions (RBFs) \cite{RBF, 
+RBF1, RBF2} and Kriging\cite{Kriging,Kriging1}, 
+along with its variations in reduced design space using Partial 
+Least Squares (PLS) regression, e.g KPLS\cite{KPLS} and 
+KPLSK\cite{KPLSK}. Responsible for the metamodel training, is 
+a Python-based, open-source software called Surrogate Modelling 
+Toolbox (SMT)\cite{preprint_SMT}, which is highly efficient in 
+deterministic methods since it offers gradient prediction 
+modules. However, its ability to work just as efficiently 
+with stochastic methods and more importantly with EASY 
+software, makes SMT suitable for accommodating the process 
+of training surrogate models with the potential to replace or 
+update the library of built-in metamodels available in EASY.
+
+The purpose of this diploma thesis is to assess the performance 
+(and way of implementation) of MAEA-based optimization in various 
+applications. The first part of the study is focused on 
+observing the performance of MAEAs w.r.t. conventional 
+stochastic optimization methods; particularly in comparison 
+to EAs. The second part is focused on improving the 
+implementation of MAEAs by selecting surrogate models with 
+enhanced qualities, e.g. reduced training time, improved 
+response and overall model fitting. The quality of each 
+metamodel is tested on various optimization problems of 
+scaling difficulty, ranging from low-dimensional 
+pseudo-engineering optimization roblems, i.e. welded beam and speed 
+reducer case, to airfoil shape optimization with aerodynamic 
+criteria using the CFD solver, called PUMA (Parallel solver, 
+for Unstructured grids, for Multi-blade row computations, including 
+Adjoint) and developed by PCOpt/NTUA.
+
+%The efficiency-based comparison between the metamodel-
+%assisted stochastic method and a deterministic one is far 
+%more simple and its ... ρωτα για αυτο
+\newpage
+%-------------------------------------------------------
+
+
+\section{Optimization}
+An optimization process aims at  maximizing or 
+minimizing a mathematical function via stochastic or 
+deterministic methods w.r.t $n_{c}$ constraints. 
+This mathematical function is called objective function 
+and is commonly denoted by $\vec{f}(\vec{β}) \in \mathbb{R}
+^{n}$. For $n$ objectives a constrained optimization problem 
+can be described as follows:
+\begin{equation}\label{initial_opt_eq}
+\begin{split}
+min \hspace{2mm} \vec{f}(\vec{β}) 
+& = 
+min \left\lbrace f_{1}(\vec{β}), f_{2}(\vec{β}),\ldots, 
+f_{n}(\vec{β}) \right\rbrace 
+\\ &
+\text{subject to} \hspace{2mm} c_{j}(\vec{β}) 
+\leq c_{j}^{thres} \hspace{2mm}, j = 1,n_{c}
+\end{split}
+\end{equation}
+\\
+where $c_{j}^{thres}$ is the nominal threshold of each 
+constraint imposed by the user for the purpose of the 
+optimization. The input values to the objective function
+are called design variables and are commonly denoted by:
+\begin{equation}\label{nx}
+\vec{β} = \left[β_{1}, β_{2}, \ldots, β_{n_{β}} \right]
+\end{equation}
+\\[-0.4cm]
+where $n_{β}$ is their number or interchangeably the number of 
+problem dimensions. Multi-objective optimization (MOO) consists of 
+n objectives:
+\begin{equation}\label{objective function}
+\vec{f}(\vec{β}) = \left[ f_{1}(\vec{β}), f_{2}(\vec{β}),
+\ldots, f_{n}(\vec{β}) \right]
+\end{equation}
+\\[-0.4cm]
+which are often conflicting and thus the minimization of 
+each objective does not yield the optimal minimization of 
+the objective function vector $\vec{f}(\vec{β}) \in 
+\mathbb{R}^n$. The most common approach for solving such a 
+problem w.r.t. two objectives is the depiction 
+of the entirety of $\vec{f}(\vec{β})$ component values in a 
+mutual plot. The vertical and horizontal axis of such a plot 
+correspond to the range of values of the respective 
+objective and the resulting plot is called Pareto front. 
+A solution in Pareto front is called non-dominated if none 
+of the objectives can be improved in value without degrading 
+some of the other objective. The set of all the non-dominated 
+solutions is the Pareto frontier.
+
+In single objective optimization (SOO), the output of the 
+objective function to a single design variable vector 
+$\vec{β} \in \mathbb{R}^{n_{β}}$ input is a scalar quantity:
+\begin{equation}
+\vec{f}(\vec{β}) = f(\vec{β}) = f
+\end{equation} 
+
+%\begin{figure}[h]
+%    \centering
+%    \includegraphics[width=0.5
+%    \textwidth]{Pareto}   
+%    \caption{Pareto front for two objectives} 
+%\end{figure}
+
+
+%The number of objectives n appearing in eq.
+%\ref{objective function} differs from the number
+%of dimensions $n_{β}$ appearing in eq. 
+%\ref{nx}. The latter 
+%depends on the number of design variables that were 
+%selected from the total variables that form the objective
+%function. The former, however, depends on the nature of 
+%the optimization problem and the desired quality of the 
+%optimization. For example, the optimization of an airfoil
+%would be futile if the only objective was the 
+%maximization of the lift coefficient $C_{L}$. 
+%Consequently, in that case the introduction of two or 
+%more objectives is necessary. 
+\newpage 
+%--------------------------------------------------
+
+
+\section{Evolutionary Algorithms}\label{section:EAs}
+Evolutionary algorithms are inspired by the Darwinian 
+evolutionary theory and they have therefore assimilated 
+its key elements. In complete correspondence the evolutionary 
+process revolves around selecting the predominant/elite 
+individuals from a greater sample. This sample consists
+of $λ$ offspring which were created by $μ$ parents during a
+generation of the evolutionary algorithm. The population involved 
+in a generation, denoted by \textit{g}, is classified in the three 
+aforementioned categories that are denoted by $P_{a}^g$, $P_{λ}^g$ 
+or $P_{μ}^g$ to refer to elites, offspring or parents respectively. 
+EAs constantly form new generations by updating the three main 
+population groups until convergence is reached. The optimal 
+candidate solution in SOO or the non-dominated ones in MOO are 
+included in the elite population set $P_{a}^g$. In order to gain 
+better insight into (μ,λ) ΕΑs, their structure is further 
+decomposed\cite{EAs}:  
+
+\begin{EA}
+\item \textbf{Initialization} \\
+The generation counter \textit{g} is set to zero, 
+marking the initialization of the algorithm. The main 
+objective of EAs is selecting the optimal candidate 
+in SOO or a set of non-dominated individuals in 
+MOO problems from the offspring population set $P_{λ}^g$ 
+in each generation. This set is initialized randomly at 
+start of the evolution. 
+
+\item \textbf{Offspring evaluation} \\
+Each individual $\vec{β}$ in the offspring population $P_{λ}^g$ 
+is evaluated on the PSM. The outcome of the evaluation $\vec{f}
+(\vec{β})$ is archived in the database (DB).
+
+\item \textbf{Computation of cost/fitness function} \\
+Every individual $\vec{β} \!\in \!P^{g} \!\subset \!\mathbb{R}
+^{n_{β}}$ with $P^g \!= \!P_{a}^g \cup P_{λ}^g \cup P_{μ}^g$, is 
+assigned a scalar value $Φ(\vec{β})$, where $Φ(\vec{β})$ is 
+a cost or fitness function computed as such:
+
+\begin{equation}
+Φ(\vec{β}) = Φ \left(\vec{f}(\vec{β}), 
+\{ \vec{f}(\vec{z}) \hspace{2mm} \vert \hspace{2mm}
+\vec{z} \in P^g \setminus \{\vec{β}\} \}\right) \in 
+\mathbb{R} 
+\end{equation}
+
+In MOO problems sorting algorithms are implemented, namely 
+NSGA\cite{NSGA}, SPEA\cite{SPEA}, NSGA-ΙΙ\cite{NSGA_2} and 
+SPEA-ΙΙ\cite{SPEA_2}. Such algorithms assign a cost value 
+$Φ(\vec{β})$ to every vector $\vec{f}(\vec{β})$ based on dominance 
+criteria in the objective space. In SOO problems such methods are 
+redundant, since it suffices to compare the values obtained from a 
+single objective function and hence $Φ(\vec{β}) \!\equiv \!
+f(\vec{β})$. 
+
+\item \textbf{Identification of elites} \\
+The cost/fitness function serves as a metric for the 
+selection of the optimal candidate solution, where lower 
+$Φ(\vec{β})$ values indicate a more suitable candidate solution 
+$\vec{β}$ in minimization problems; the opposite applies in 
+maximization problems. Depending on the number of objectives, 
+the currently optimal solution in SOO or a set of non-dominated 
+candidate solutions in MOO are stored in the temporary set $P_{e}$. 
+\newpage
+%------------------------------------------------------
+
+
+\item \textbf{Elitism} \\
+The elite population set of the next generation is updated 
+via a process of elitism that is applied to the set 
+$P_{e,a} = P_{α}^g \cup P_{e}$. This process dictates the number of 
+of elite individuals to replace the worst offspring in the current
+population $P_{λ}^{g}$ along with the probability for a random 
+elite to be selected as a parent. 
+
+\item \textbf{Parent selection} \\
+The parents in the next generation $P_{μ}^{g+1}$ are 
+selected from the wider set $P_{μ,λ}^g = P_{λ}^g \cup 
+P_{μ}^g$ after they have outperformed other parents in a 
+tournament.
+
+\item \textbf{Crossover and mutation} \\
+ The set of offspring in the next generation 
+$P_{λ}^{g+1}$ is subsequently formed via the use of 	
+operators that mimic natural evolution, i.e. crossover/
+recombination and mutation. Crossover is responsible for the 
+generation of a new offspring by using a recombination of 
+the prominent genetic features of each parent. Mutation on 
+the other hand, alters one or more genetic features in order 
+to introduce diversity in the selected population. 
+ %In 
+%computer science, mutation and crossover are implemented by
+%using real or binary encoding, with the most common being 
+%the latter. In binary encoding, a number of bytes, called 
+%genes, is assigned to each design variable $β_{1}, β_{2}, 
+%\hdots, β_{n_{β}}$. The $n_{β}$ genes are subsequently combined 
+%in a predefined sequence and form a chromosome. The crossover 
+%and mutation process of two chromosomes is presented in the 
+%following figure:
+
+%\begin{figure}[h!]
+%\centering
+%\begin{tikzpicture}[scale=0.4, every 
+%$node/.style={font=\sffamily}, align=center]
+%%$--1st matrix---
+%\draw (-13,9) node[anchor=north]{Crossover};
+%\draw[thick] (-10,10) rectangle +(8,1.5);
+
+%\filldraw[thick, top color=white,bottom color=gray!50!] 
+%(-10,10) rectangle node{0} +(1,1.5);
+%\filldraw[thick, top color=white,bottom color=gray!50!] 
+%(-9,10) rectangle node{0} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(-8,10) rectangle node{1} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(-7,10) rectangle node{0} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(-6,10) rectangle node{1} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(-5,10) rectangle node{1} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(-4,10) rectangle node{0} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(-3,10) rectangle node{0} +(1,1.5);
+
+%\draw[decorate,decoration={brace,amplitude=10pt},
+%xshift=-1pt,yshift=1pt](-2,10) -- (-10,10) node 
+%[midway,anchor=south, xshift=-0.2cm, yshift=-1.1cm]{
+%$\vec{β}_{1}\! \in \! P_{μ}^{g+1}$};
+
+%%--2nd matrix---
+%\filldraw[thick, top color=white,bottom color=white!50!] 
+%(0,10) rectangle node{1} +(1,1.5);
+%\filldraw[thick, top color=white,bottom color=white!50!] 
+%(1,10) rectangle node{0} +(1,1.5);
+%\filldraw[top color=white,bottom color=white!50!] 
+%(2,10) rectangle node{1} +(1,1.5);
+%\filldraw[top color=white,bottom color=white!50!] 
+%(3,10) rectangle node{0} +(1,1.5);
+%\filldraw[top color=white,bottom color=white!50!] 
+%(4,10) rectangle node{1} +(1,1.5);
+%\filldraw[top color=white,bottom color=white!50!] 
+%(5,10) rectangle node{1} +(1,1.5);
+%\filldraw[top color=white,bottom color=white!50!] 
+%(6,10) rectangle node{0} +(1,1.5);
+%\filldraw[top color=white,bottom color=white!50!] 
+%(7,10) rectangle node{0} +(1,1.5);
+
+%\draw[thick] (0,10) rectangle +(8,1.5);
+%\draw[decorate,decoration={brace,amplitude=10pt},
+%xshift=-1pt,yshift=1pt](8,10) -- (0,10) node 
+%[midway,anchor=south,yshift=-1.1cm]{$\vec{β}_{2}\! \in \! 
+%P_{μ}^{g+1}$};
+
+%%--3rd matrix---
+%\draw[thick] (-5,6) rectangle +(8,1.5);
+
+%\filldraw[thick, top color=white,bottom color=white!50!] 
+%(-5,6) rectangle node{1} +(1,1.5);
+%\filldraw[thick, top color=white,bottom color=white!50!] 
+%(-4,6) rectangle node{0} +(1,1.5);
+%\filldraw[top color=white,bottom color=white!50!] 
+%(-3,6) rectangle node{1} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(-2,6) rectangle node{0} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(-1,6) rectangle node{1} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(0,6) rectangle node{1} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(1,6) rectangle node{0} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(2,6) rectangle node{0} +(1,1.5);
+
+%%--4th matrix---
+%\draw (-13,6.2) node[anchor=north]{Mutation};
+%\draw[thick] (-5,2.5) rectangle +(8,1.5);
+
+%\filldraw[thick, top color=white,bottom color=white!50!] 
+%(-5,2.5) rectangle node{1} +(1,1.5);
+%\filldraw[thick, top color=white,bottom color=white!50!] 
+%(-4,2.5) rectangle node{0} +(1,1.5);
+%\filldraw[top color=white,bottom color=white!50!] 
+%(-3,2.5) rectangle node{1} +(1,1.5);
+%\filldraw[top color=white,bottom color=red!50!] 
+%(-2,2.5) rectangle node{1} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(-1,2.5) rectangle node{1} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(0,2.5) rectangle node{1} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(1,2.5) rectangle node{0} +(1,1.5);
+%\filldraw[top color=white,bottom color=gray!50!] 
+%(2,2.5) rectangle node{0} +(1,1.5);
+
+%\draw[thick,->] (-1.5,6) -- (-1.5,4) 
+%node[anchor=south east] {};
+%\draw (-13,4.2) node[anchor=north]{$\vec{β}_{1_{new}}\! \in\!
+%P_{λ}^{g+1}$};
+
+%\end{tikzpicture}
+%\caption{Implementation of crossover and mutation 
+%    using binary encoding}
+%\end{figure}
+
+ 
+\item \textbf{Termination} \\
+The next generation is now fully formed and the
+convergence of the process is tested. If the convergence 
+criteria are not yet met, then $g \leftarrow g + 1$
+and the optimization is repeated beginning from step EAs-2. 
+If however, a predetermined threshold of PSM evaluations has 
+been reached or the elite population remains unchanged for a 
+user-selected number of iterations, then EA terminates.
+\end{EA}
+\vspace{2mm}
+
+The aforementioned steps outline the function of EAs and
+will be subsequently combined into the flowchart form of figure 
+\ref{fig:flowchart_EAs}.
+
+\newpage
+%------------------------------------------------------
+
+
+\begin{figure}[h!]
+\centering
+\begin{center}
+\begin{adjustbox}{width=0.85\textwidth,height= 
+0.75\textheight,keepaspectratio}
+\begin{tikzpicture}[node distance=1.6cm,
+    every node/.style={fill=white, font=\sffamily}, 
+    align=center]
+    
+\node (start) [startstop] {Start};
+
+\node (pro1) [process, below of=start] 
+{ $g = 0$ \\ Initialize $P_{λ}^{g}$};
+
+\node (pro2) [process, below of=pro1, yshift=-0.3cm] 
+{Evaluate $P_{λ}^{g}$ on PSM};
+
+\node (pro3) [process, below of=pro2, yshift=-0.3cm] 
+{Assign $Φ(\vec{β})$};
+
+\node (pro4) [process, below of=pro3] 
+{Update elites $\!\rightarrow \!P_{α}^{g+1}$};
+
+\node (pro5) [process, below of=pro4, yshift=-0.1cm]
+{Parent \\ selection $\rightarrow \!P_{μ}^{g+1}$};
+
+\node (pro6) [process, below of=pro5, yshift=-0.1cm] 
+{Crossover and  \\
+mutation $\!\rightarrow \!P_{λ}^{g+1}$};
+ 
+\node (dec1) [decision, below of=pro6, yshift=-1.4cm] 
+{Termination \\ criteria};
+\node (stop) [startstop, below of=dec1, yshift=-1.5cm]
+{Stop};
+
+\draw [arrow] (start) -- (pro1);
+\draw [arrow] (pro1) -- (pro2);
+\draw [arrow] (pro2) -- (pro3);
+\draw [arrow] (pro3) -- (pro4);
+\draw [arrow] (pro4) -- (pro5);
+\draw [arrow] (pro5) -- (pro6);
+\draw [arrow] (pro6) -- (dec1);
+\draw [arrow] (dec1) -- node[anchor=east, xshift=-0.1cm] 
+{yes} (stop);
+\draw [->][arrow] (dec1.west) -- ++(-2,0) -- ++(0,5.9) 
+-- ++(0,4) -- node[xshift=-1cm,yshift=-4.5cm, text 
+width=2.5cm]{$g = g +1 $}(pro2.west);
+\draw (-2.5,-12.8) node[anchor=north]{no};
+
+\end{tikzpicture}
+\end{adjustbox}
+\end{center}
+\caption{Flowchart of Evolutionary Algorithms}
+\label{fig:flowchart_EAs}
+\end{figure}
+\newpage
+%-------------------------------------------------------
+
+Most optimization problems are usually subject to 
+constraints, which EAs handle via one of the following ways 
+or a combination of those:
+
+\begin{enumerate}
+\item Penalty functions
+\item Conversion of constraints into objectives
+\item Correlation operators
+\end{enumerate}
+
+EASY in particular, mainly uses the first method, 
+which penalizes any value that exceeds a certain threshold. 
+That upper bound of acceptable constraint values is called 
+nominal threshold value $c_{j}^{thres}$ and is firstly 
+introduced in equation \ref{initial_opt_eq}. Once a constraint 
+exceeds this value ($ c_{j}(\vec{β}) > c_{j}^{thres}$), an 
+exponential penalty function $f_{l}(\vec{β})$ is triggered for each 
+objective function $l \!\in \![1,n]$:
+\begin{equation}\label{relaxation_function}
+f_{n}(\vec{β}) = f_{n}(\vec{β}) + \prod_{j=1}^{n_{c}} exp
+\left( α_{j} \dfrac{c_{j} - c_{j}^{thres}}
+{c_{j}^{relax} - c_{j}^{thres}} \right)
+\end{equation} 
+\\
+where $n$ and $n_{c}$ is the number of optimization 
+objectives and constraints respectively, $α_{j}$ a 
+user-defined positive constant and $c_{j}^{relax}$ a 
+user-defined constraint value that is called relaxation 
+threshold value. It is by definition larger than the nominal 
+threshold value $c_{j}^{relax} > c_{j}^{thres}$ and is 
+introduced in order to prompt the evolution process from 
+terminating in its early stages, when the candidate solutions 
+commonly defy the imposed constraints. When a candidate 
+solution exceeds the relaxation threshold its fitness function 
+$Φ(\vec{β})$ receives a death penalty i.e. an almost infinitely 
+large value that practically renders the solution unsuitable 
+for further evolution. Equation \ref{relaxation_function} 
+operates when the candidate solutions reside in the $c_{j}^{thres} 
+\!< \! c_{j} < c_{j}^{relax}$ range and penalizes them depending on 
+their distance from the nominal threshold value $c_{j}^{thres}$ 
+(see figure \ref{fig:feasible_sol}). Nominal threshold determines, 
+therefore, which solutions are feasible and which are not.
+
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[scale=0.7, every 
+node/.style={font=\sffamily}, align=center]
+\draw[thick,<->] (-5,0) -- (6,0) node[anchor=north west] 
+{$c_{j}$};
+\draw[thick,->] (0,0) -- (0,4.5) node[anchor=south east] 
+{$Φ(c_{j})$};
+\draw (0,0) [color=red!80] parabola (4,4); 
+\draw (0,0) node[anchor=north]{$c_{j}^{thres}$};
+\draw[dashed] (4,0) -- (4,5);
+\draw (4,0) node[anchor=north]{$c_{j}^{relax}$}; 
+\fill[color=gray!10] (0,0) rectangle (-4,4); 
+\draw (-2,3) node[rotate=0, anchor=north]
+{feasible \\ solutions};
+\draw (4,4) node[anchor=west]{$f_{l}(\vec{β})$};
+\end{tikzpicture}
+\caption{Penalisation of feasible and infeasible 
+solutions in EASY}
+\label{fig:feasible_sol}
+\end{figure} 
+
+\newpage
+%------------------------------------------------------

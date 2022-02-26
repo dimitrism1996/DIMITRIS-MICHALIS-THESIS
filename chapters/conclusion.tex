@@ -1,0 +1,207 @@
+\section{Overview}
+In this diploma thesis, the implementation of Metamodel-Assisted 
+EAs (MAEAs) in the optimization process of various common 
+engineering cases is tested. MAEAs are introduced due to the 
+increased computational cost observed in CFD applications optimized 
+via the use of conventional EAs. In the entirety of methods 
+utilized, the optimization process is accommodated by EASY.
+Two main MAEA-based optimization methods are used in this thesis 
+and are based on the approach followed in the training of 
+the metamodels, i.e. on-line and off-line training. 
+
+In the former, a global surrogate model is built prior to the 
+evolution on $n_{doe}^{'}$ training patterns $\mathbf{X}$ that are
+collected via the implementation of a DoE scheme. The most commonly
+used DoE techniques and the ones used in this thesis are 
+accommodated by a Python package, called PyDOE, and result in the 
+construction of a random, a LH or a factorial design. According to 
+the construction method implemented, LHDs can be further 
+categorized in centered, maximin, maximin centered, maxent 
+or ESE LHDs. A comparison between the attributes of LH and 
+factorial designs led to the conclusion that LHS with ESE 
+construction criterion will be the main sampling method in this 
+thesis. In MAEAs with off-line training, responsible for the 
+training of the metamodels and the DoE construction is a Python-
+based, open-source software, called SMT. In SMT software, a variety 
+of surrogate models can be found; in this thesis, namely Kriging, 
+its applications in reduced design space using PLS, i.e. KPLS and 
+KPLSK, and RBFs are utilized. The structure of MAEA-based 
+optimization with off-line training and the Python codes written 
+needed to implement it, are subsequently presented. 
+
+In optimization using MAEAs with on-line training, an LCPE phase is 
+introduced where metamodels are utilized. The structure of 
+MAEA-based optimization with on-line training and the Python codes 
+written needed to implement it using SMT, are subsequently 
+presented. In this method, EASY built-in RBFs can be utilized in 
+order to perform the optimization and this built-in metamodel is 
+therefore compared to the surrogate models provided by SMT.
+
+Both these methods are compared to plain EAs in terms of efficacy 
+and computational cost. Each optimization method is initially 
+implemented in two simple pseudo-engineering optimization problems, 
+i.e. welded beam and speed reducer case. The first optimization 
+case requires the minimization of the fabrication cost of a welded 
+beam design w.r.t. 4 design variables $\vec{β}$ and the design 
+space is bound by 5 imposed constraints $c(\vec{β})$. The second
+optimization problem dictates the minimization of the weight of a 
+speed reducer w.r.t. 7 design variables $\vec{β}$ and the design 
+space is bound by 11 imposed constraints $c(\vec{β})$ 
+
+Once the optimization methods have been tested on these simple 
+pseudo-engineering cases, they are implemented in the shape 
+optimization of a 2D NACA 4318 airfoil. The RANS equations of 
+compressible flows are solved using PUMA CFD solver. The flow field 
+is simulated at take-off and cruise conditions, where the former 
+are used in the MOO optimization and constrained maximization of 
+the lift force $L$ of the airfoil and the latter in the constrained 
+minimization of the drag force $D$.
+
+\vspace{5mm}
+
+\section{Conclusions}
+By completing the studies in this diploma thesis, the following 
+conclusions are drawn:
+\begin{itemize}
+\item  In pseudo-engineering applications of low computational 
+cost the implementation of MAEAs using metamodels trained off-line 
+or on-line via SMT severely prolongs the wall clock time of the 
+optimization. This is contributed to nature of SMT, which is 
+Python-based, and the communication between EASY and SMT. 
+Consequently, in low fidelity models the use of MAEAs with 
+surrogate models trained via SMT are not recommended. However, 
+MAEA-based optimization using EASY built-in RBFs that are trained 
+on-line is a more cost-effective solution and are generally 
+preferred. 
+
+\item In the shape optimization of the naca 4318, MAEAs using 
+off-line and on-line training outperform conventional EAs and 
+MAEAs using on-line trained, EASY built-in RBFs. In S00 cases in 
+particular, the use of MAEAs with KPLS trained-on line via SMT 
+results in the convergence of the optimization after circa 150 CFD 
+evaluations have been performed. Consequently, MAEA with off-line 
+and on-line training yield a $80 \%$ and $60 \%$ decrease in the 
+computational cost of CFD applications, respectively. For this 
+reason, MAEAs with surrogate models trained via SMT are generally 
+preferred in such applications. 
+
+\item Almost in all tested applications KPLS is seemingly the model
+with the better fitting and the best overall performance, followed 
+by the KPLSK model. EASY built-in RBFs are placed third in the 
+overall metamodel ranking, followed by Kriging and RBFs found  
+in SMT.
+
+\item Overall MAEAs using on-line trained surrogate models perform 
+better than off-line trained ones, since the latter are heavily 
+dependent on the fitting and the accuracy of the metamodel.
+
+\item The uncertainty of the results leads to the conclusion that 
+the use of each optimization method and surrogate models heavily 
+depends on the optimization problem. Consequently, a conclusion 
+that applies to every application cannot be extracted, since the 
+user must be the judge of the situation.
+\end{itemize}
+
+\newpage
+%----------------------------------------------------------------
+
+
+\section{Future Work}
+Based on the results of this investigation the following can be 
+proposed for future work:
+
+\begin{itemize}
+%\item \textbf{Dimension reduction techniques}
+%\\
+%They are namely multivariate models that reduce the design 
+%dimensions by projecting the inter-correlated design 
+%variables in a design space consisting of $h < n_{β}$
+%variables, which are called principal components. The 
+%most commonly used methods for dimension reduction are
+%Principal Component Analysis (PCA)\cite{PCA} and Partial 
+%Least Squares (PLS)\cite{PLS}.  
+
+\item The efficacy of MAEAs degrades in high-dimensional 
+optimization problems and commonly a plethora of methods are used 
+to facilitate EAs implementation. Most common are distributed 
+search models, e.g. Distributed EAs (DEAs)\cite{DEA,DEA1}, that 
+distribute the individuals of any population in multiple 
+semi-isolated subpopulations which are called demes. In 
+computationally expensive problems, DEAs are assisted by metamodels 
+(DMAEAs)\cite{DMAEA}. It is common to combine DEAs 
+with Hierarchical EAs (HEAs)\cite{DEA1,HEA}, thus creating 
+HDEAs\cite{HDEA}. If then metamodels are used, HDMAEAs\cite{HDMAEA} 
+are formed. HEAs have an hierarchical topology structure that
+resembles a binary tree that expands in two or more rarely 
+three layers. Alternatively, Memetic Algorithms (MAs)\cite{MA}, 
+which are regarded as hybrid EAs and are similar to HEAs, combine 
+conventional EAs with methods of refining individuals usually in 
+the form of local search heuristics. When combined with metamodels,
+Metamodel Assisted MAs (MAMAs)\cite{MAMA,MAMA1} are formed. 
+Finally, the synchronization gap during each evolution of HEAs or 
+DEAs led to the creation of Asynchronous EAs (AEAs)\cite{AEA,AEA1} 
+and AMAEAs\cite{AMAEA}. Some of these methods are available in 
+EASY, e.g. HEAs and DEAs, and can be utilized in future work. \\
+
+
+\item The prolonged wall clock time that resulted from the 
+implementation of MAEA-based optimization with metamodels trained 
+via SMT is attributed to the use of Python. However, the code 
+responsible for the communication between EASY and SMT could be 
+optimized via the use of Python in-house modules and packages. 
+Alternatively, any Python function can be rewritten in C++ in order 
+to drastically reduce the computational cost of the optimization.
+
+%\item \textbf{Distributed Search models}
+%\\
+%The main representative of population-distributed models, 
+%Distributed EAs (DEAs)\cite{DEA,DEA1}, distributes the 
+%individuals of any population in multiple semi-isolated 
+%subpopulations which are called demes. The evolution in 
+%demes is focused, to different degree each, on the 
+%development of exploration or exploitation capabilities. 
+%An exploration-oriented deme is focused on the increase 
+%f diversity, while an exploitation-oriented deme on the 
+%eduction of diversity by exploiting already found promising 
+%olutions. This method results in the creation of diverse 
+%population sets amongst demes. According to the allocation of 
+%neighbouring demes, called topology, the communication 
+%between the populations of different demes can 
+%subsequently commence via the implementation of various 
+%migration policies. In computationally expensive problems, 
+%DEAs are assisted by metamodels (DMAEAs)\cite{DMAEA}.
+
+%However, it is common to combine DEAs with Hierarchical 
+%EAs (HEAs)\cite{DEA1,HEA}, thus creating HDEAs\cite{HDEA}.
+%If then metamodels are used, HDMAEAs\cite{HDMAEA} are 
+%formed. HEAs have an hierarchical topology structure that
+%resembles a binary tree that expands in two or more rarely 
+%three layers. The demes residing on each level are obliged to
+%communicate exclusively with demes residing on adjacent 
+%levels. Bottom layer consists of exploration-oriented demes, 
+%top layer of exploitation-oriented ones and the intermediate 
+%a mixture of both. Consequently, each level is assigned an 
+%evaluation model of ascending fidelity starting from a 
+%low-fidelity evaluation model in the bottom level. 
+ 
+%DEAs and HEAs are a class of synchronous 
+%Parallel EAs (PAEs)\cite{PEA}, called coarse-grained 
+%parallel EAs, where each deme is assigned to a different 
+%processor. Conventional PEAs operate based on the 
+%master-slave model, according to which the master 
+%executes the majority of the procedures that are necessary 
+%for the evolution while the slaves perform fitness 
+%evaluation of specific individuals. The synchronization 
+%gap during each evolution led to the creation of 
+%Asynchronous EAs (AEAs)\cite{AEA,AEA1} and 
+%AMAEAs\cite{AMAEA}.
+
+%\item \textbf{Dual-phase evolution model}
+%\\
+%Memetic Algorithms (MAs)\cite{MA} are regarded as hybrid 
+%EAs, similar to HEAs, that combine conventional EAs with  
+%methods of refining individuals usually in the form 
+%of local search heuristics. When combined with metamodels,
+%Metamodel Assisted MAs (MAMAs)\cite{MAMA,MAMA1} are 
+%formed.
+\end{itemize} 
