@@ -6,7 +6,6 @@
 1) optSMT_online.easy is the EASY executable, where the parameters of the optimization can be found
 2) reads_task_dat.py reads the task.dat file that EASY writes
 3) read_metadb.py reads the training patterns selected by EASY
-4) sampling_code1,py performs the sampling with the use of a DoE technique
-5) sciptSMT_online.bat performs the evaluation on the PSM
-6) train.py performs the training of the metamodel
-7) prediction.py performs the prediction using the trained metamodel
+4) sciptSMT_online.bat performs the evaluation on the PSM
+5) train.py performs the training of the metamodel
+6) prediction.py performs the prediction using the trained metamodel
