@@ -1,0 +1,181 @@
+INIv2.1.0
+_______________________________________________________________________________
+Driver
+_______________________________________________________________________________
+0 		 - 0: Case Initialization 1:Case Continuation
+0 		 - 1: Restore an existing DB 0: Do not
+1 		 - Objectives to optimize
+2 		 - 1:parallel 2:script 3:DRMAA
+1 		 - Concurrent fitness evaluation processes to spawn
+0 		 - Evaluator statistics step (-ve): only at the end!
+-100 		 - Evaluation Step to save db (-ve: never)
+1 		 - Number of Hierarchical Levels
+1 		 - Number of Parameterizations
+EA 		 - Log disk file - NO SPACES in filenames
+state 		 - Continuation disk file - NO SPACES in filenames
+out 		 - Solution disk base file -NO SPACES in filenames
+DB 		 - Database disk file - NO SPACES in filenames
+_______________________________________________________________________________
+EVALUATORS
+#SINGLE TASK:  S  scriptname Condor_AUX maximum_evaluation_calls cost_ratio)
+#BATCH  TASK:  B  Number_of_scripts  Script_IDs maxevals
+#if Condor_AUX==none then no additional information are added
+_______________________________________________________________________________
+1 		 - Total Evaluation scripts
+S ./scriptSMT_online.bat   none  400  1.0  Hi Level
+_______________________________________________________________________________
+LEVEL 1
+_______________________________________________________________________________
+0 		 - Type (0: EA, 1:SD/CG, 2:SQP)
+1 		 - Parameterization ID
+1 		 - Demes (all the rest of the properties apply to each deme)
+1 		 - Generation step to save results file (-ve only at the end)
+1 		 - Gener. step to save continuation file (-ve only at the end)
+1648      	 - Random Number Generator
+------------- DISTRIBUTED - GROUP COMMUNICATION (Ignore if just one deme)
+2 -1 		 - Migration frequency, maximum migs (generations) <-ve>: Infinite
+3 4 		 - Number of emigrants (best, random)
+7 		 - Number of immigrants (they compete)
+0 		 - Migration replacement mode (0: Random, 1: Worst, 2:Rnd-replace if better)
+1 		 - Migration Graph (0:Round, 1:Each to all)
+10 2 		 - Infection frequency, maximum infections
+2.3 0.09 	 - Infection mutation multiplier, maximum mutation probability
+0.1 		 - Infection radius multiplier factor
+1 		 - Infection duration
+100.0 		 - Maximum Sharing penalty
+------------- HIERARCHICAL - LEVEL COMMUNICATION (Ignore if just one level)
+1 1 		 - Level Migration (first time, frequency) with higher level
+1 1 		 - Level Migration (first time, frequency) with lower level
+6 6 		 - Imported Elites from higher level (first time, onwards)
+10 5 		 - Imported Elites from lower level (first time, onwards)
+1.0 1.0 	 - Elites % to be re-evaluated from each level(higher,lower)
+5 		 - Number of inefficient migrations from lower level to tolerate (-ve:infinite)
+------------- POPULATION Properties
+2 		 - Init Mode(0: Do not use file, 1:File has free vars, 2:All vars
+1 		 - Number of scripts
+1  		 - Scripts ids
+1.0  		 - Percentage of the population to use each script
+0 		 - Coding 0:Real 1: ES 2:Binary 3:Gray binary
+0.1 		 - ES stdev(+/- 10% random), 0.1 recommended
+20		 - my     (parents   population size)
+40		 - lambda (offspring population size)
+1		 - kappa  (max life span)
+3 		 - rho  (parents that create one offspring) [*3] (1: no recomb)
+100              - PCA is available if more than PCA_av elites are available
+1000		 - PCA is available after PCA_start generations
+0		 - Reduced dimension for RBFN training (<0>:No reduction, <else>:New dimension)
+1  		 - Elit indivs to keep (max archive size)
+0 		 - Allow penalized individuals to enter elite set (0: No 1:Yes)
+1 		 - Elit indivs to force as new offspring(from 1...max_elit if better)
+0.03 		 - Probability to select an elit
+3 		 - Tournament size (1 == random operator)
+0.90 		 - Tournament probability
+0.9 		 - Xover probability
+6 		 - Xover 0:1p 1:2p *2:GInterm|pvar 3:Discrete 4:No-ave(BLX-a)|Uniform 5:Interm|p2var 6:SBX|-
+0 		 - Xover for sigmas 0: >> >> *7 (ATTN: set to 0 if no ES-coding)
+0.05 		 - Muta probability (start)
+0 		 - Muta mode 0:std 1:ES StepSizeControlRule
+0.2		 - Refinement parameter for Muta (Real Coding only) 0.2 recom.
+1 		 - Dynamic exploration (Muta) multiplier [0,1] [1]==no
+5 		 - Dynamic exploration ineffective generation (then multiply mutp)
+-1 		 - MAX generations to evolve (-ve:infinite)
+-1 		 - MAX evaluations (-ve: infinite) (per population)
+-1 		 - MAX idle generations (no bestever or front update)
+-1 		 - MAX idle evaluations (no bestever or front update)
+4 		 - Mode 0:Front Rank Fitness 1: Sharing 2: SPEA 3: SPEA15 *4: SPEA2-k-th! 
+1 		 - Max distance between individuals - niche radius^2
+1 		 - Distance Space 0: Variable's 1: Objective's 2: Nested
+2 		 - Distances nonDimens.by 0:1 1:D(bounds) 2:max-min of gen-front
+1.0 		 - Nested distance objectives multiplier
+------------- Variable Limits Adaptation
+0 		 - Adaptation Frequency
+0 		 - Maximum Adaptations to perform
+1.0 		 - Adaptation: Variables' extent multiplayer
+10000000	 - Hybrid Algorithm Activation Generation
+------------- Inexact Pre-Evaluation(IPE) Properties
+3 		 - Metamodel type (0:None, 1:RBFsimple 2:RBF_IFs 4:SVM 3:External)
+0 		 - PreClassification Filter (0:Disable, 1:Classify, 2:Correct)
+0.1 		 - PreClassification Filter (Population percentage allowed)
+0.01 		 - Trust Region for Quadratic Model (%) (Preclassifier)
+0.7 		 - Maximum Offset Allowed (%)
+1 		 - Correct on (0:Death Penalty, 1: Death & Con. Violation)
+2 4 		 - Exact evals per pop&gen (min-max)
+8 		 - Idle generations for IPE pause (-ve: never)
+0 		 - Extrapolate Prediction (1:Yes 0:No)
+1 		 - Non-dimensionalize Prediction (1:Yes 0:No)
+10 		 - Minimum not failed patterns
+10.0 		 - Factor to multiply failed objectives(times max_obj)
+40 		 - Minimum DB entries for the selected script
+0 		 - Minimum not failed DB entries for the selected script
+1.0 		 - Maximum DB percentage to use
+0 		 - Use failed patterns( <0>: No, <1>: Yes)
+10 20 		 - Patterns to be used for training (min-max)
+1.4 		 - Proximity factor to select between min-max train patterns
+-1.0 		 - RBF radius (-ve:Auto Calc, +ve:Explicitly Set) +/-1.0 Rec 
+0.4 		 - Importance Factors relaxation factor
+0 		 - Use PCA for Importance Factors ( <0>:No,  <1>:Yes)
+0.5 		 - Percentage of best marked individuals (SVM)
+1 		 - SVM fitness scenario(0: Optimistic 1:Ave-dev)
+0 		 - SVM: Use failed for fitness technique (0:No, 1:Yes)
+2 		 - GRBFN: Minimum number of RBF Centers
+120 		 - GRBFN: Maximum number of RBF Centers
+0.5 		 - GRBFN: Radius multiplier
+0.3 		 - GRBFN: Percent of close entries to use as testing set
+10 		 - GRBFN: Maximum idle iterations
+0.1 		 - GRBFN: Learning rate percentage (frac. of max. stable)
+0.05 		 - GNG: Neuron Center movement factor
+6.0E-4 		 - GNG: Neuron neighbours movement factor
+80 		 - GNG: Maximum connection age
+10.0 		 - GNG: Factor to multiply adding step according to dimensions
+0.5 		 - GNG: Factor to decrease error after interpolation
+0.9995 		 - GNG: General error decrease factor
+0.1 		 - GNG: Percentage of training patterns to consider as neigh.
+0.95 		 - GNG: Probability to select a neighbour after adding neuror
+0.0 		 - GNG: Iterations fraction to select a neighbor after adding neuron
+0 		 - GRBFN: <0> Interpolate only, <1> Extrapolate only, <2> Auto
+0.5 		 - GRBFN: min/ave threshold ratio  (>=extrap, < interp)
+10		 - Kriging: Iterations of kriging
+2		 - Kriging: Criteria   of kriging
+1		 - RSM: Degree of Polynomial Function
+_______________________________________________________________________________
+PARAMETERIZATION 1
+_______________________________________________________________________________
+#-----------Design Variables  (Format: bits min max comments)
+13	 - Total number of variables
+3   -0.26  -0.24
+3   -0.26  -0.24
+3   -0.26  -0.24
+3   -0.26  -0.24
+3   -0.26  -0.24
+3   -0.01   0.01
+3   -0.01   0.01
+3   -0.01   0.01
+3    0.24   0.26
+3    0.24   0.26
+3    0.24   0.26
+3    0.24   0.26
+3    0.24   0.26
+#-----------Constraints  (format: Maximum_accepted_value Fail_value  Intensity)
+1		 - Total number of constraints
+16.81029504 20.0 5.0
+_______________________________________________________________________________
+PARAMETERIZATION LINKING (Format: source destination script_id comments
+_______________________________________________________________________________
+0 		 - Number of entries
+_______________________________________________________________________________
+CONSTRAINTS AUX
+_______________________________________________________________________________
+1.0
+1.0
+
+
+Notes:
+Hardcoded file names:
+Vars: task.dat, Objs: task.res, Constraints: task.cns
+
+
+
+
+
+
+
